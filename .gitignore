@@ -21,3 +21,9 @@ gradle-app.setting
 # Spring Boot
 *.jar
 *.war
+
+# Kotlin
+.kotlin/
+
+# opencode
+.opencode
