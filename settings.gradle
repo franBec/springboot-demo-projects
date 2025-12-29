@@ -1,0 +1,6 @@
+// settings.gradle (Root)
+rootProject.name = 'springboot-demo-projects'
+
+include 'spring_java'
+include 'spring_groovy'
+include 'spring_kotlin'

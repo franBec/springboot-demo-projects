@@ -1,0 +1,23 @@
+# General
+.DS_Store
+.history
+*.log
+
+# Gradle stuff
+.gradle/
+**/build/
+!**/src/**/build/
+gradle-app.setting
+
+# IDEs
+.idea/
+*.iml
+*.iws
+.vscode/
+.project
+.settings/
+.classpath
+
+# Spring Boot
+*.jar
+*.war
