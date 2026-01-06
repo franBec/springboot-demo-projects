@@ -1,20 +1,36 @@
 package dev.pollito.spring_kotlin.sakila.film.adapter.`in`.rest
 
-import dev.pollito.spring_kotlin.sakila.film.adapter.`in`.rest.dto.FilmResponse
+import dev.pollito.spring_kotlin.generated.api.FilmsApi
+import dev.pollito.spring_kotlin.generated.model.FilmListResponse
+import dev.pollito.spring_kotlin.generated.model.FilmResponse
 import dev.pollito.spring_kotlin.sakila.film.domain.port.`in`.FindByIdPortIn
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
+import io.opentelemetry.api.trace.Span.current
+import jakarta.servlet.http.HttpServletRequest
+import java.time.OffsetDateTime.now
+import org.springframework.http.HttpStatus.OK
+import org.springframework.http.ResponseEntity
+import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/films")
 class FilmRestController(
     private val findByIdPortIn: FindByIdPortIn,
     private val filmMapper: FilmMapper,
-) {
-  @GetMapping("/{id}")
-  fun findFilmById(@PathVariable id: Long): FilmResponse? {
-    return filmMapper.convert(findByIdPortIn.findById(id))
+    private val request: HttpServletRequest,
+) : FilmsApi {
+  override fun findAll(): ResponseEntity<FilmListResponse> {
+    TODO("Not yet implemented")
+  }
+
+  override fun findById(id: Long): ResponseEntity<FilmResponse> {
+    return ok(
+        FilmResponse(
+            data = filmMapper.convert(findByIdPortIn.findById(id)),
+            instance = request.requestURI,
+            timestamp = now(),
+            trace = current().spanContext.traceId,
+            status = OK.value(),
+        )
+    )
   }
 }

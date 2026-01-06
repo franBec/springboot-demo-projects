@@ -5,6 +5,7 @@ plugins {
   id("io.spring.dependency-management") version "1.1.7"
   id("com.diffplug.spotless") version "8.1.0"
   kotlin("kapt") version "2.3.0"
+  id("org.openapi.generator") version "7.17.0"
 }
 
 group = "dev.pollito"
@@ -45,6 +46,11 @@ dependencies {
   implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
   implementation("org.aspectj:aspectjtools:1.9.25.1")
   implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
+
+  val swaggerCoreVersion = "2.2.41"
+  implementation("io.swagger.core.v3:swagger-annotations:$swaggerCoreVersion")
+  implementation("io.swagger.core.v3:swagger-models:$swaggerCoreVersion")
+  implementation("org.springframework.boot:spring-boot-starter-validation")
 }
 
 kotlin {
@@ -56,7 +62,11 @@ kotlin {
 tasks.withType<Test> { useJUnitPlatform() }
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-  kotlin { ktfmt() }
+  kotlin {
+    target("src/**/*.kt")
+    targetExclude("build/**/*.kt")
+    ktfmt()
+  }
   kotlinGradle {
     target("*.gradle.kts")
     ktfmt()
@@ -67,3 +77,44 @@ tasks.named("build") {
   dependsOn("spotlessKotlinApply")
   dependsOn("spotlessKotlinGradleApply")
 }
+
+val openApiSpecPath = "$projectDir/src/main/resources/openapi.yaml"
+val openApiGeneratedSourcesDir = "${layout.buildDirectory.get().asFile}/generated/source/openapi"
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateOpenApi") {
+  generatorName.set("kotlin-spring")
+  generateApiTests.set(false)
+  generateApiDocumentation.set(false)
+  generateModelTests.set(false)
+  generateModelDocumentation.set(false)
+
+  inputSpec.set(openApiSpecPath)
+  outputDir.set(openApiGeneratedSourcesDir)
+
+  val basePackage = "${project.group}.${project.name}.generated"
+  apiPackage.set("$basePackage.api")
+  modelPackage.set("$basePackage.model")
+
+  configOptions.set(
+      mapOf(
+          "gradleBuildFile" to "false",
+          "interfaceOnly" to "true",
+          "modelMutable" to "true",
+          "requestMappingMode" to "api_interface",
+          "skipDefaultInterface" to "true",
+          "useJakartaEe" to "true",
+          "useSpringBoot3" to "true",
+          "useTags" to "true",
+      )
+  )
+}
+
+kotlin.sourceSets["main"].kotlin.srcDir("$openApiGeneratedSourcesDir/src/main/kotlin")
+
+tasks.named("compileKotlin") { dependsOn("generateOpenApi") }
+
+tasks.withType<org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask> {
+  dependsOn("generateOpenApi")
+}
+
+tasks.named("clean") { doFirst { delete(openApiGeneratedSourcesDir) } }

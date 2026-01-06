@@ -1,20 +1,28 @@
 package dev.pollito.spring_groovy.sakila.film.adapter.in.rest
 
-import dev.pollito.spring_groovy.sakila.film.adapter.in.rest.dto.FilmResponse
 import dev.pollito.spring_groovy.sakila.film.domain.model.Film
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.modelmapper.ModelMapper
+import org.springframework.stereotype.Component
 
+@Component
 @CompileStatic
-final class FilmMapper {
-  private FilmMapper() {}
+class FilmMapper {
+  private final ModelMapper modelMapper
 
-  @CompileDynamic
-  static FilmResponse convert(Film source) {
-    source ? new FilmResponse(
-        source.properties.findAll {
-          it.key != 'class'
-        }
-        ) : null
+  FilmMapper(ModelMapper modelMapper) {
+    this.modelMapper = modelMapper
+  }
+
+  dev.pollito.spring_groovy.generated.model.Film convert(Film source) {
+    if (!source) return null
+
+    def target = modelMapper.map(source, dev.pollito.spring_groovy.generated.model.Film)
+
+    if (source.rating) {
+      target.rating = dev.pollito.spring_groovy.generated.model.Film.RatingEnum.fromValue(source.rating)
+    }
+
+    target
   }
 }
