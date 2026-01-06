@@ -1,17 +1,18 @@
 package dev.pollito.spring_groovy.config.advice
 
-import static java.time.Instant.now
-import static java.time.format.DateTimeFormatter.ISO_INSTANT
+import static java.time.OffsetDateTime.now
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR
 import static org.springframework.http.HttpStatus.Series.SERVER_ERROR
 
+import dev.pollito.spring_groovy.generated.model.Error
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.opentelemetry.api.trace.Span
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
-import org.springframework.http.ProblemDetail
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.resource.NoResourceFoundException
@@ -20,7 +21,14 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 @Slf4j
 @CompileStatic
 class ControllerAdvice {
-  private static ProblemDetail buildProblemDetail(Exception e, HttpStatus status) {
+
+  private final HttpServletRequest request
+
+  ControllerAdvice(HttpServletRequest request) {
+    this.request = request
+  }
+
+  private ResponseEntity<Error> buildProblemDetail(Exception e, HttpStatus status) {
     def exceptionSimpleName = e.class.simpleName
     def logMessage = "${exceptionSimpleName} being handled"
 
@@ -36,20 +44,26 @@ class ControllerAdvice {
         break
     }
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, e.getLocalizedMessage())
-    problemDetail.setProperty("timestamp", ISO_INSTANT.format(now()))
-    problemDetail.setProperty("trace", Span.current().spanContext.traceId)
-
-    problemDetail
+    ResponseEntity.status(status)
+        .body(
+        new Error(
+        detail: e.localizedMessage,
+        instance: request.requestURI,
+        timestamp: now(),
+        title: status.reasonPhrase,
+        trace: Span.current().spanContext.traceId,
+        status: status.value(),
+        )
+        )
   }
 
   @ExceptionHandler(Exception.class)
-  ProblemDetail handle(Exception e) {
+  ResponseEntity<Error> handle(Exception e) {
     buildProblemDetail(e, INTERNAL_SERVER_ERROR)
   }
 
   @ExceptionHandler(NoResourceFoundException)
-  ProblemDetail handle(NoResourceFoundException e) {
+  ResponseEntity<Error> handle(NoResourceFoundException e) {
     buildProblemDetail(e, NOT_FOUND)
   }
 }
