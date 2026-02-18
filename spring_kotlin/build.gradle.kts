@@ -34,6 +34,10 @@ dependencies {
   val mapstructVersion = "1.7.0.Beta1"
   implementation("org.mapstruct:mapstruct:$mapstructVersion")
   kapt("org.mapstruct:mapstruct-processor:$mapstructVersion")
+
+  implementation("io.github.oshai:kotlin-logging-jvm:8.0.01")
+  implementation("org.springframework.boot:spring-boot-starter-aspectj")
+  implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
 }
 
 kotlin {

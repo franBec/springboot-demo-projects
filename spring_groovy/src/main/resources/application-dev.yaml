@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: spring_groovy
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false

@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: spring_java
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
