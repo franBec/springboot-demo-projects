@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: spring_kotlin
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false

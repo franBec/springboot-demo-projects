@@ -41,6 +41,10 @@ dependencies {
   kapt(
       "org.mapstruct.extensions.spring:mapstruct-spring-extensions:$mapstructSpringExtensionsVersion"
   )
+
+  implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
+  implementation("org.aspectj:aspectjtools:1.9.25.1")
+  implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
 }
 
 kotlin {
