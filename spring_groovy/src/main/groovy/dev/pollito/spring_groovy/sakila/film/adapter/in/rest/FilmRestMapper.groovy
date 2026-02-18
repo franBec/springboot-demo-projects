@@ -2,19 +2,20 @@ package dev.pollito.spring_groovy.sakila.film.adapter.in.rest
 
 import dev.pollito.spring_groovy.sakila.film.adapter.in.rest.dto.FilmResponse
 import dev.pollito.spring_groovy.sakila.film.domain.model.Film
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.modelmapper.ModelMapper
+import org.springframework.stereotype.Component
 
+@Component
 @CompileStatic
-final class FilmRestMapper {
-  private FilmRestMapper() {}
+class FilmRestMapper {
+  private final ModelMapper mapper
 
-  @CompileDynamic
-  static FilmResponse convert(Film source) {
-    source ? new FilmResponse(
-        source.properties.findAll {
-          it.key != 'class'
-        }
-        ) : null
+  FilmRestMapper(ModelMapper mapper) {
+    this.mapper = mapper
+  }
+
+  FilmResponse convert(Film source) {
+    mapper.map(source, FilmResponse)
   }
 }

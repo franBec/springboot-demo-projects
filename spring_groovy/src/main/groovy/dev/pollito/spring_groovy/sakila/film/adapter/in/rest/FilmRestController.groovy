@@ -1,7 +1,5 @@
 package dev.pollito.spring_groovy.sakila.film.adapter.in.rest
 
-import static FilmRestMapper.convert
-
 import dev.pollito.spring_groovy.sakila.film.adapter.in.rest.dto.FilmResponse
 import dev.pollito.spring_groovy.sakila.film.domain.port.in.FindByIdPortIn
 import groovy.transform.CompileStatic
@@ -15,13 +13,15 @@ import org.springframework.web.bind.annotation.RestController
 @CompileStatic
 class FilmRestController {
   FindByIdPortIn findByIdPortIn
+  FilmRestMapper mapper
 
-  FilmRestController(FindByIdPortIn findByIdPortIn) {
+  FilmRestController(FindByIdPortIn findByIdPortIn, FilmRestMapper mapper) {
     this.findByIdPortIn = findByIdPortIn
+    this.mapper = mapper
   }
 
   @GetMapping("/{id}")
   FilmResponse findById(@PathVariable("id") Integer id) {
-    convert(findByIdPortIn.findById(id))
+    mapper.convert(findByIdPortIn.findById(id))
   }
 }
