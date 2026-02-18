@@ -1,23 +1,12 @@
 package dev.pollito.spring_kotlin.sakila.film.adapter.`in`.rest
 
+import dev.pollito.spring_kotlin.config.mapper.MapperSpringConfig
 import dev.pollito.spring_kotlin.sakila.film.adapter.`in`.rest.dto.FilmResponse
 import dev.pollito.spring_kotlin.sakila.film.domain.model.Film
-import org.springframework.stereotype.Component
+import org.mapstruct.Mapper
+import org.springframework.core.convert.converter.Converter
 
-@Component
-class FilmMapper {
-  fun convert(source: Film?): FilmResponse? {
-    if (source == null) {
-      return null
-    }
-    return FilmResponse(
-        id = source.id,
-        title = source.title,
-        description = source.description,
-        releaseYear = source.releaseYear,
-        rating = source.rating,
-        lengthMinutes = source.lengthMinutes,
-        language = source.language,
-    )
-  }
+@Mapper(config = MapperSpringConfig::class)
+interface FilmMapper : Converter<Film, FilmResponse> {
+  override fun convert(source: Film): FilmResponse
 }
