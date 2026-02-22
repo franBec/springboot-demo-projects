@@ -2,12 +2,12 @@ package dev.pollito.spring_java.config.advice;
 
 import static io.opentelemetry.api.trace.Span.current;
 import static java.time.OffsetDateTime.now;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ResponseEntity.status;
 
 import dev.pollito.spring_java.generated.model.Error;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -53,5 +53,10 @@ public class ControllerAdvice {
   @ExceptionHandler(NoResourceFoundException.class)
   public ResponseEntity<Error> handle(NoResourceFoundException e) {
     return buildProblemDetail(e, NOT_FOUND);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<Error> handle(ConstraintViolationException e) {
+    return buildProblemDetail(e, BAD_REQUEST);
   }
 }

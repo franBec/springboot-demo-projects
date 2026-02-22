@@ -6,6 +6,7 @@ plugins {
   id("com.diffplug.spotless") version "8.1.0"
   kotlin("kapt") version "2.3.0"
   id("org.openapi.generator") version "7.17.0"
+  jacoco
 }
 
 group = "dev.pollito"
@@ -51,6 +52,9 @@ dependencies {
   implementation("io.swagger.core.v3:swagger-annotations:$swaggerCoreVersion")
   implementation("io.swagger.core.v3:swagger-models:$swaggerCoreVersion")
   implementation("org.springframework.boot:spring-boot-starter-validation")
+
+  testImplementation("com.ninja-squad:springmockk:5.0.1")
+  testImplementation("io.mockk:mockk:1.14.7")
 }
 
 kotlin {
@@ -59,7 +63,66 @@ kotlin {
   }
 }
 
-tasks.withType<Test> { useJUnitPlatform() }
+tasks.withType<Test> {
+  useJUnitPlatform()
+  jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
+  finalizedBy(tasks.jacocoTestReport)
+}
+
+jacoco { toolVersion = "0.8.14" }
+
+tasks.jacocoTestReport {
+  dependsOn(tasks.test)
+  reports {
+    xml.required.set(true)
+    html.required.set(true)
+  }
+
+  classDirectories.setFrom(
+      files(
+          classDirectories.files.map {
+            fileTree(it) {
+              exclude(
+                  // OpenAPI generated code
+                  "**/generated/**",
+                  "**/openapitools/**",
+
+                  // Application entry point
+                  "**/*Application*",
+
+                  // Domain models (POJOs)
+                  "**/domain/model/**",
+
+                  // MapStruct
+                  "**/config/mapper/**",
+                  "**/*MapperImpl*",
+              )
+            }
+          }
+      )
+  )
+}
+
+tasks.jacocoTestCoverageVerification {
+  dependsOn(tasks.jacocoTestReport)
+
+  violationRules {
+    rule {
+      limit {
+        counter = "LINE"
+        minimum = "0.8".toBigDecimal()
+      }
+      limit {
+        counter = "BRANCH"
+        minimum = "0.5".toBigDecimal()
+      }
+    }
+  }
+
+  classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
+}
+
+tasks.named("check") { dependsOn(tasks.jacocoTestCoverageVerification) }
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
   kotlin {
