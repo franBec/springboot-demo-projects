@@ -1,0 +1,82 @@
+package dev.pollito.spring_kotlin.sakila.film.adapter.`in`.rest
+
+import com.ninjasquad.springmockk.MockkBean
+import dev.pollito.spring_kotlin.config.advice.ControllerAdvice
+import dev.pollito.spring_kotlin.sakila.film.domain.model.Film
+import dev.pollito.spring_kotlin.sakila.film.domain.port.`in`.FindByIdPortIn
+import dev.pollito.spring_kotlin.test.util.hasErrorFields
+import dev.pollito.spring_kotlin.test.util.hasStandardApiResponseFields
+import io.mockk.every
+import kotlin.test.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.OK
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
+
+@ExtendWith(SpringExtension::class)
+@WebMvcTest(FilmRestController::class)
+@Import(ControllerAdvice::class, FilmMapperImpl::class)
+class FilmRestControllerTest {
+  companion object {
+    private const val API_FILMS = "/api/films"
+  }
+
+  @MockkBean private lateinit var findByIdPortIn: FindByIdPortIn
+  @Autowired private lateinit var mockMvc: MockMvc
+
+  @Test
+  fun `when find by id then returns film`() {
+    val filmId = 1L
+    val film =
+        Film(
+            id = filmId,
+            title = "Test Film",
+            description = "Test description",
+            releaseYear = 2000,
+            rating = "G",
+            lengthMinutes = 100,
+            language = "EN",
+        )
+
+    every { findByIdPortIn.findById(filmId) } returns film
+
+    mockMvc
+        .get("$API_FILMS/$filmId") { accept = APPLICATION_JSON }
+        .andExpect {
+          status { isOk() }
+          jsonPath("$.data.id") { value(filmId.toInt()) }
+          hasStandardApiResponseFields("$API_FILMS/$filmId", OK)
+        }
+  }
+
+  @Test
+  fun `when find by invalid id then returns bad request`() {
+    val invalidId = 0L
+
+    mockMvc
+        .get("$API_FILMS/$invalidId") { accept = APPLICATION_JSON }
+        .andExpect {
+          status { isBadRequest() }
+          hasStandardApiResponseFields("$API_FILMS/$invalidId", BAD_REQUEST)
+          hasErrorFields(BAD_REQUEST)
+        }
+  }
+
+  @Test
+  fun `when find all then throws NotImplementedError`() {
+    mockMvc
+        .get(API_FILMS) { accept = APPLICATION_JSON }
+        .andExpect {
+          status { isInternalServerError() }
+          hasStandardApiResponseFields(API_FILMS, INTERNAL_SERVER_ERROR)
+          hasErrorFields(INTERNAL_SERVER_ERROR)
+        }
+  }
+}
