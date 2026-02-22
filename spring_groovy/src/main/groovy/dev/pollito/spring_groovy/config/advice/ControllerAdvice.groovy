@@ -1,6 +1,7 @@
 package dev.pollito.spring_groovy.config.advice
 
 import static java.time.OffsetDateTime.now
+import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR
@@ -11,6 +12,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.opentelemetry.api.trace.Span
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -65,5 +67,10 @@ class ControllerAdvice {
   @ExceptionHandler(NoResourceFoundException)
   ResponseEntity<Error> handle(NoResourceFoundException e) {
     buildProblemDetail(e, NOT_FOUND)
+  }
+
+  @ExceptionHandler(ConstraintViolationException)
+  ResponseEntity<Error> handle(ConstraintViolationException e) {
+    buildProblemDetail(e, BAD_REQUEST)
   }
 }
