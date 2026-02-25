@@ -5,6 +5,7 @@ plugins {
   id 'com.diffplug.spotless' version '8.1.0'
   id 'org.openapi.generator' version '7.17.0'
   id 'jacoco'
+  id 'info.solidsoft.pitest' version '1.19.0-rc.3'
 }
 
 group = 'dev.pollito'
@@ -107,6 +108,7 @@ jacocoTestCoverageVerification {
 
 tasks.named('check') {
   dependsOn jacocoTestCoverageVerification
+  dependsOn 'pitest'
 }
 
 tasks.named('test') {
@@ -170,4 +172,41 @@ sourceSets {
 
 tasks.named('compileJava') {
   dependsOn 'openApiGenerate'
+}
+
+pitest {
+  def basePackage = "${project.group}.${project.name}".toString()
+
+  targetClasses = [
+    "${basePackage}.config.advice.*",
+    "${basePackage}.config.log.*",
+    "${basePackage}.sakila.*.adapter.*",
+    "${basePackage}.sakila.*.domain.port.*",
+  ] as Iterable<? extends String>
+
+  targetTests = ["${basePackage}.*"] as Iterable<? extends String>
+
+  excludedClasses = [
+    "${basePackage}.generated.*",
+    '**.*MapperImpl*',
+  ] as Iterable<? extends String>
+
+  mutationThreshold = 70
+  coverageThreshold = 80
+
+  junit5PluginVersion = '1.2.3'
+  threads = 4
+  outputFormats = ['HTML']
+  timestampedReports = false
+  jvmArgs = [
+    '-XX:+EnableDynamicAgentLoading',
+    '--add-opens',
+    'java.base/java.lang=ALL-UNNAMED',
+    '--add-opens',
+    'java.base/java.util=ALL-UNNAMED',
+    '--add-opens',
+    'java.base/java.lang.reflect=ALL-UNNAMED',
+    '--add-opens',
+    'java.base/java.io=ALL-UNNAMED'
+  ]
 }
