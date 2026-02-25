@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 60s
+  evaluation_interval: 60s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+
+  - job_name: 'spring-java'
+    static_configs:
+      - targets: ['spring-java:8080']
+    metrics_path: '/actuator/prometheus'
+
+  - job_name: 'spring-kotlin'
+    static_configs:
+      - targets: ['spring-kotlin:8080']
+    metrics_path: '/actuator/prometheus'
+
+  - job_name: 'spring-groovy'
+    static_configs:
+      - targets: ['spring-groovy:8080']
+    metrics_path: '/actuator/prometheus'
