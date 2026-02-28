@@ -1,11 +1,11 @@
 plugins {
   kotlin("jvm") version "2.2.21"
   kotlin("plugin.spring") version "2.2.21"
-  id("org.springframework.boot") version "4.0.1"
+  id("org.springframework.boot") version "4.0.3"
   id("io.spring.dependency-management") version "1.1.7"
   id("com.diffplug.spotless") version "8.1.0"
-  kotlin("kapt") version "2.3.0"
-  id("org.openapi.generator") version "7.17.0"
+  kotlin("kapt") version "2.3.10"
+  id("org.openapi.generator") version "7.20.0"
   jacoco
   id("info.solidsoft.pitest") version "1.19.0-rc.3"
 }
