@@ -11,6 +11,10 @@ on:
     paths-ignore:
       - '**/*.md'
 
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
