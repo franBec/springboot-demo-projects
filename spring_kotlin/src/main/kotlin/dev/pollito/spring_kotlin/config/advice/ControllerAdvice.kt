@@ -58,4 +58,9 @@ class ControllerAdvice(private val request: HttpServletRequest) {
   fun handle(e: ConstraintViolationException): ResponseEntity<Error> {
     return buildProblemDetail(e, BAD_REQUEST)
   }
+
+  @ExceptionHandler(NoSuchElementException::class)
+  fun handle(e: NoSuchElementException): ResponseEntity<Error> {
+    return buildProblemDetail(e, NOT_FOUND)
+  }
 }

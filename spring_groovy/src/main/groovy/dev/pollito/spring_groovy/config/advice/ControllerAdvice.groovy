@@ -73,4 +73,9 @@ class ControllerAdvice {
   ResponseEntity<Error> handle(ConstraintViolationException e) {
     buildProblemDetail(e, BAD_REQUEST)
   }
+
+  @ExceptionHandler(NoSuchElementException)
+  ResponseEntity<Error> handle(NoSuchElementException e) {
+    buildProblemDetail(e, NOT_FOUND)
+  }
 }
