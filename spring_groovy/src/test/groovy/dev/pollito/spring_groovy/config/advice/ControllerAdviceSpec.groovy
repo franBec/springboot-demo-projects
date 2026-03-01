@@ -42,6 +42,12 @@ class ControllerAdviceSpec extends Specification implements ApiResponseMatchers 
     static void throwConstraintViolationException() {
       throw new ConstraintViolationException("Constraint violation", Set.of())
     }
+
+    @GetMapping("/no-such-element")
+    @SuppressWarnings("unused")
+    static void throwNoSuchElementException() {
+      throw new NoSuchElementException("No such element")
+    }
   }
 
   def setup() {
@@ -62,9 +68,10 @@ class ControllerAdviceSpec extends Specification implements ApiResponseMatchers 
         .andExpect(hasErrorFields(httpStatus))
 
     where:
-    endpoint            | httpStatus            || exceptionType
-    "/fake/not-found"   | NOT_FOUND             || "NoResourceFoundException"
-    "/fake/error"       | INTERNAL_SERVER_ERROR || "Exception"
-    "/fake/bad-request" | BAD_REQUEST           || "ConstraintViolationException"
+    endpoint                | httpStatus            || exceptionType
+    "/fake/not-found"       | NOT_FOUND             || "NoResourceFoundException"
+    "/fake/error"           | INTERNAL_SERVER_ERROR || "Exception"
+    "/fake/bad-request"     | BAD_REQUEST           || "ConstraintViolationException"
+    "/fake/no-such-element" | NOT_FOUND             || "NoSuchElementException"
   }
 }

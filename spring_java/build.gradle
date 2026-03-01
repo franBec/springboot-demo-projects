@@ -22,6 +22,7 @@ configurations {
   compileOnly {
     extendsFrom annotationProcessor
   }
+  hibernateTools
 }
 
 repositories {
@@ -56,6 +57,17 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
 
   implementation 'io.micrometer:micrometer-registry-prometheus:1.17.0-M2'
+
+  def h2Version = '2.4.240'
+  def hibernateVersion = '7.0.2.Final'
+  hibernateTools "com.h2database:h2:${h2Version}"
+  hibernateTools "org.hibernate.tool:hibernate-tools-ant:${hibernateVersion}"
+  hibernateTools "org.hibernate.orm:hibernate-core:${hibernateVersion}"
+
+  runtimeOnly "com.h2database:h2:${h2Version}"
+  implementation 'org.springframework.boot:spring-boot-h2console'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 }
 
 jacoco {
@@ -164,16 +176,75 @@ openApiGenerate {
   ]
 }
 
+tasks.register('generateEntities') {
+  group = 'build'
+  description = 'Reverse engineers resources/sakila-schema.sql into JPA Entities'
+
+  def outputDir = layout.buildDirectory.dir("generated/sources/hibernate")
+  def sqlFile = layout.projectDirectory.file("src/main/resources/sakila-schema.sql")
+  def revengFile = layout.projectDirectory.file("src/main/resources/hibernate.reveng.xml")
+  def basePropsFile = layout.projectDirectory.file("src/main/resources/hibernate-tools.properties")
+  def templateDir = layout.projectDirectory.dir("src/main/resources/templates/hibernate")
+
+  inputs.file(sqlFile)
+  inputs.file(revengFile)
+  inputs.file(basePropsFile).optional()
+  inputs.dir(templateDir).optional()
+  outputs.dir(outputDir)
+
+  doLast {
+    def tempPropsFile = layout.buildDirectory.file("tmp/hibernate-tools.properties").get().asFile
+    tempPropsFile.parentFile.mkdirs()
+
+    def props = new Properties()
+    if (basePropsFile.asFile.exists()) {
+      basePropsFile.asFile.withInputStream { props.load(it) }
+    }
+    props.setProperty(
+        'hibernate.connection.url',
+        "jdbc:h2:mem:sakila;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM '${sqlFile.asFile.absolutePath.replace('\\', '/')}'"
+        )
+
+    tempPropsFile.withOutputStream { props.store(it, null) }
+
+    def destDir = outputDir.get().asFile
+    destDir.mkdirs()
+
+    ant.taskdef(
+        name: 'hibernatetool',
+        classname: 'org.hibernate.tool.ant.HibernateToolTask',
+        classpath: configurations.hibernateTools.asPath
+        )
+
+    ant.hibernatetool(
+        destdir: destDir,
+        templatepath: templateDir.asFile
+        ) {
+          jdbcconfiguration(
+              propertyfile: tempPropsFile,
+              revengfile: revengFile.asFile,
+              packagename: "${project.group}.${project.name}.generated.entity",
+              detectmanytomany: true,
+              detectoptimisticlock: true
+              )
+
+          hbm2java(jdk5: true, ejb3: true)
+        }
+  }
+}
+
 sourceSets {
   main {
     java {
       srcDir(layout.buildDirectory.dir("generated/sources/openapi/src/main/java"))
+      srcDir(layout.buildDirectory.dir("generated/sources/hibernate"))
     }
   }
 }
 
 tasks.named('compileJava') {
   dependsOn 'openApiGenerate'
+  dependsOn 'generateEntities'
 }
 
 pitest {
