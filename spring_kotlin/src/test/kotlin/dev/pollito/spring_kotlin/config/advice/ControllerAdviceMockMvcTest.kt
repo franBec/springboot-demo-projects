@@ -45,6 +45,11 @@ class ControllerAdviceMockMvcTest {
     fun throwConstraintViolationException() {
       throw ConstraintViolationException("Constraint violation", emptySet())
     }
+
+    @GetMapping("/no-such-element")
+    fun throwNoSuchElementException() {
+      throw NoSuchElementException("No such element")
+    }
   }
 
   companion object {
@@ -54,6 +59,7 @@ class ControllerAdviceMockMvcTest {
             Arguments.of("/fake/not-found", NOT_FOUND),
             Arguments.of("/fake/error", INTERNAL_SERVER_ERROR),
             Arguments.of("/fake/bad-request", BAD_REQUEST),
+            Arguments.of("/fake/no-such-element", NOT_FOUND),
         )
   }
 

@@ -3,12 +3,15 @@ package dev.pollito.spring_groovy
 import static java.util.regex.Pattern.compile
 import static java.util.regex.Pattern.quote
 import static org.springframework.http.MediaType.APPLICATION_JSON
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpMethod
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import spock.lang.Specification
@@ -16,6 +19,8 @@ import spock.lang.Unroll
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Sql(scripts = ["/sakila-schema.sql", "/sakila-data.sql"], executionPhase = BEFORE_TEST_CLASS)
 class SanityCheckSpringBootSpec extends Specification {
 
   @Autowired

@@ -2,7 +2,6 @@ package dev.pollito.spring_java.sakila.film.adapter.in.rest;
 
 import dev.pollito.spring_java.config.mapper.MapperSpringConfig;
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
-import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.springframework.core.convert.converter.Converter;
 
@@ -10,5 +9,5 @@ import org.springframework.core.convert.converter.Converter;
 public interface FilmRestMapper
     extends Converter<Film, dev.pollito.spring_java.generated.model.Film> {
   @Override
-  dev.pollito.spring_java.generated.model.Film convert(@Nullable Film source);
+  dev.pollito.spring_java.generated.model.Film convert(Film source);
 }

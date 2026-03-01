@@ -1,21 +1,17 @@
 package dev.pollito.spring_java.sakila.film.domain.port.in;
 
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
+import dev.pollito.spring_java.sakila.film.domain.port.out.FindByIdPortOut;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class FindByIdPortInImpl implements FindByIdPortIn {
+  private final FindByIdPortOut findByIdPortOut;
+
   @Override
   public Film findById(Integer id) {
-    return Film.builder()
-        .id(id)
-        .title("ACADEMY DINOSAUR")
-        .description(
-            "A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies")
-        .releaseYear(2006)
-        .rating("PG")
-        .length(86)
-        .language("English")
-        .build();
+    return findByIdPortOut.findById(id);
   }
 }

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
   kotlin("jvm") version "2.2.21"
   kotlin("plugin.spring") version "2.2.21"
@@ -8,6 +10,7 @@ plugins {
   id("org.openapi.generator") version "7.20.0"
   jacoco
   id("info.solidsoft.pitest") version "1.19.0-rc.3"
+  kotlin("plugin.jpa") version "2.2.21"
 }
 
 group = "dev.pollito"
@@ -19,6 +22,8 @@ description = "Demo project for Spring Boot with Kotlin"
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
+
+val hibernateTools: Configuration by configurations.creating
 
 repositories { mavenCentral() }
 
@@ -58,6 +63,18 @@ dependencies {
   testImplementation("io.mockk:mockk:1.14.7")
 
   implementation("io.micrometer:micrometer-registry-prometheus:1.17.0-M2")
+
+  val hibernateVersion = "7.0.2.Final"
+  val h2Version = "2.4.240"
+  hibernateTools("com.h2database:h2:$h2Version")
+  hibernateTools("org.hibernate.tool:hibernate-tools-ant:$hibernateVersion")
+  hibernateTools("org.hibernate.orm:hibernate-core:$hibernateVersion")
+
+  developmentOnly("com.h2database:h2:$h2Version")
+  testRuntimeOnly("com.h2database:h2:$h2Version")
+  developmentOnly("org.springframework.boot:spring-boot-h2console")
+  implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+  testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
 }
 
 kotlin {
@@ -145,7 +162,8 @@ tasks.named("build") {
 }
 
 val openApiSpecPath = "$projectDir/src/main/resources/openapi.yaml"
-val openApiGeneratedSourcesDir = "${layout.buildDirectory.get().asFile}/generated/source/openapi"
+val openApiGeneratedSourcesDir = "${layout.buildDirectory.get().asFile}/generated/sources/openapi"
+val hibernateGeneratedSourcesDir = layout.buildDirectory.dir("generated/sources/hibernate")
 
 tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateOpenApi") {
   generatorName.set("kotlin-spring")
@@ -175,12 +193,89 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("gen
   )
 }
 
-kotlin.sourceSets["main"].kotlin.srcDir("$openApiGeneratedSourcesDir/src/main/kotlin")
+tasks.register("generateEntities") {
+  group = "build"
+  description = "Reverse engineers resources/sakila.sql into JPA Entities (Kotlin)"
 
-tasks.named("compileKotlin") { dependsOn("generateOpenApi") }
+  val sqlFile = file("src/main/resources/sakila-schema.sql")
+  val revengFile = file("src/main/resources/hibernate.reveng.xml")
+  val basePropsFile = file("src/main/resources/hibernate-tools.properties")
+  val templateDir = file("src/main/resources/templates/hibernate")
+
+  inputs.file(sqlFile)
+  inputs.file(revengFile)
+  inputs.file(basePropsFile).optional()
+  inputs.dir(templateDir).optional()
+  outputs.dir(hibernateGeneratedSourcesDir)
+
+  doLast {
+    val tempPropsFile = layout.buildDirectory.file("tmp/hibernate-tools.properties").get().asFile
+    tempPropsFile.parentFile.mkdirs()
+
+    val props = Properties()
+    if (basePropsFile.exists()) {
+      basePropsFile.inputStream().use { stream -> props.load(stream) }
+    }
+
+    val sakilaSqlPath = sqlFile.absolutePath.replace("\\", "/")
+    props.setProperty(
+        "hibernate.connection.url",
+        "jdbc:h2:mem:sakila;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM '$sakilaSqlPath'",
+    )
+
+    tempPropsFile.outputStream().use { stream -> props.store(stream, null) }
+
+    val destDir = hibernateGeneratedSourcesDir.get().asFile
+    destDir.mkdirs()
+
+    ant.withGroovyBuilder {
+      "taskdef"(
+          "name" to "hibernatetool",
+          "classname" to "org.hibernate.tool.ant.HibernateToolTask",
+          "classpath" to hibernateTools.asPath,
+      )
+
+      "hibernatetool"(
+          "destdir" to destDir,
+          "templatepath" to templateDir,
+      ) {
+        "jdbcconfiguration"(
+            "propertyfile" to tempPropsFile,
+            "revengfile" to revengFile,
+            "packagename" to "${project.group}.${project.name}.generated.entity",
+            "detectmanytomany" to true,
+            "detectoptimisticlock" to true,
+        )
+        "hbm2java"("jdk5" to true, "ejb3" to true)
+      }
+    }
+
+    val entityDir =
+        File(destDir, "${project.group}.${project.name}.generated.entity".replace('.', '/'))
+    entityDir
+        .listFiles()
+        ?.filter { it.extension == "java" }
+        ?.forEach { javaFile ->
+          val ktFile = File(javaFile.parentFile, "${javaFile.nameWithoutExtension}.kt")
+          javaFile.renameTo(ktFile)
+          println("Renamed: ${javaFile.name} -> ${ktFile.name}")
+        }
+  }
+}
+
+kotlin.sourceSets["main"].kotlin {
+  srcDir("$openApiGeneratedSourcesDir/src/main/kotlin")
+  srcDir(hibernateGeneratedSourcesDir)
+}
+
+tasks.named("compileKotlin") {
+  dependsOn("generateOpenApi")
+  dependsOn("generateEntities")
+}
 
 tasks.withType<org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask> {
   dependsOn("generateOpenApi")
+  dependsOn("generateEntities")
 }
 
 tasks.named("clean") { doFirst { delete(openApiGeneratedSourcesDir) } }
@@ -217,6 +312,7 @@ pitest {
       setOf(
           "$basePackage.generated.*",
           "**.*MapperImpl*",
+          "**.*\$DefaultImpls",
       )
   )
 
