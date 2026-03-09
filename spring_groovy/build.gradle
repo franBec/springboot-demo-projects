@@ -44,7 +44,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
 
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.41'
-  implementation 'org.openapitools:jackson-databind-nullable:0.2.8'
+  implementation 'org.openapitools:jackson-databind-nullable:0.2.9'
   implementation 'org.springframework.boot:spring-boot-starter-validation'
 
   testImplementation 'org.spockframework:spock-core:2.4-groovy-5.0'
