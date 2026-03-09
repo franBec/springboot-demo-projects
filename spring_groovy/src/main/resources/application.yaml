@@ -1,6 +1,18 @@
 spring:
   application:
     name: spring_groovy
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  flyway:
+    enabled: false
 management:
   endpoints:
     web:

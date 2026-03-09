@@ -61,6 +61,7 @@ dependencies {
   developmentOnly "com.h2database:h2:${h2Version}"
   testRuntimeOnly "com.h2database:h2:${h2Version}"
   developmentOnly 'org.springframework.boot:spring-boot-h2console'
+  runtimeOnly 'org.postgresql:postgresql'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 }
