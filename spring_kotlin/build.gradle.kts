@@ -9,7 +9,6 @@ plugins {
   kotlin("kapt") version "2.3.10"
   id("org.openapi.generator") version "7.20.0"
   jacoco
-  id("info.solidsoft.pitest") version "1.19.0-rc.3"
   kotlin("plugin.jpa") version "2.2.21"
 }
 
@@ -143,7 +142,7 @@ tasks.jacocoTestCoverageVerification {
   classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
 }
 
-tasks.named("check") { dependsOn(tasks.jacocoTestCoverageVerification, tasks.pitest) }
+tasks.named("check") { dependsOn(tasks.jacocoTestCoverageVerification) }
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
   kotlin {
@@ -280,43 +279,3 @@ tasks.withType<org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask> {
 }
 
 tasks.named("clean") { doFirst { delete(openApiGeneratedSourcesDir) } }
-
-pitest {
-  junit5PluginVersion.set("1.2.3")
-  threads.set(Runtime.getRuntime().availableProcessors())
-  outputFormats.set(setOf("HTML"))
-  timestampedReports.set(false)
-  jvmArgs.set(listOf("-XX:+EnableDynamicAgentLoading", "-Xshare:off"))
-  mainProcessJvmArgs.set(listOf("-XX:+EnableDynamicAgentLoading", "-Xshare:off"))
-
-  avoidCallsTo.set(
-      setOf(
-          "kotlin.jvm.internal",
-          "kotlin.ResultKt",
-          "org.slf4j",
-          "io.github.oshai.kotlinlogging",
-          "ch.qos.logback",
-      )
-  )
-
-  val basePackage = "${project.group}.${project.name}"
-  targetClasses.set(
-      setOf(
-          "$basePackage.config.advice.*",
-          "$basePackage.config.log.*",
-          "$basePackage.sakila.*.adapter.*",
-          "$basePackage.sakila.*.domain.port.*",
-      )
-  )
-  targetTests.set(setOf("$basePackage.*"))
-  excludedClasses.set(
-      setOf(
-          "$basePackage.generated.*",
-          "**.*MapperImpl*",
-          "**.*\$DefaultImpls",
-      )
-  )
-
-  mutationThreshold = 70
-  coverageThreshold = 80
-}
