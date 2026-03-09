@@ -34,6 +34,8 @@ jobs:
 
       - name: Build & test all modules
         run: ./gradlew clean build
+        env:
+          GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx2g -XX:MaxMetaspaceSize=512m"
 
       - name: Upload test reports
         if: always()
