@@ -1,6 +1,18 @@
 spring:
   application:
     name: spring_kotlin
+  datasource:
+    url: jdbc:postgresql://postgres:5432/sakila
+    driver-class-name: org.postgresql.Driver
+    username: sakila
+    password: sakila
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  flyway:
+    enabled: false
 management:
   endpoints:
     web:

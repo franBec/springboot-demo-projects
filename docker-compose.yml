@@ -1,4 +1,59 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=sakila
+      - POSTGRES_USER=sakila
+      - POSTGRES_PASSWORD=sakila
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sakila -d sakila"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - monitoring
+
+  flyway:
+    image: flyway/flyway:12-alpine
+    container_name: flyway
+    command: migrate
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://postgres:5432/sakila
+      - FLYWAY_USER=sakila
+      - FLYWAY_PASSWORD=sakila
+      - FLYWAY_LOCATIONS=filesystem:/flyway/sql
+    volumes:
+      - ./flyway/migrations:/flyway/sql
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - monitoring
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - monitoring
+
   spring-java:
     build:
       context: .
@@ -6,8 +61,6 @@ services:
     container_name: spring-java
     ports:
       - "8081:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -16,7 +69,10 @@ services:
       start_period: 40s
     restart: unless-stopped
     depends_on:
-      - tempo
+      flyway:
+        condition: service_completed_successfully
+      tempo:
+        condition: service_started
     networks:
       - monitoring
 
@@ -27,8 +83,6 @@ services:
     container_name: spring-kotlin
     ports:
       - "8082:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -37,7 +91,10 @@ services:
       start_period: 40s
     restart: unless-stopped
     depends_on:
-      - tempo
+      flyway:
+        condition: service_completed_successfully
+      tempo:
+        condition: service_started
     networks:
       - monitoring
 
@@ -48,8 +105,6 @@ services:
     container_name: spring-groovy
     ports:
       - "8083:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -58,7 +113,10 @@ services:
       start_period: 40s
     restart: unless-stopped
     depends_on:
-      - tempo
+      flyway:
+        condition: service_completed_successfully
+      tempo:
+        condition: service_started
     networks:
       - monitoring
 
@@ -182,6 +240,10 @@ networks:
     driver: bridge
 
 volumes:
+  postgres-data:
+    driver: local
+  pgadmin-data:
+    driver: local
   prometheus-data:
     driver: local
   loki-data:
