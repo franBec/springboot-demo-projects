@@ -53,7 +53,7 @@ dependencies {
   implementation("org.aspectj:aspectjtools:1.9.25.1")
   implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
 
-  val swaggerCoreVersion = "2.2.41"
+  val swaggerCoreVersion = "2.2.44"
   implementation("io.swagger.core.v3:swagger-annotations:$swaggerCoreVersion")
   implementation("io.swagger.core.v3:swagger-models:$swaggerCoreVersion")
   implementation("org.springframework.boot:spring-boot-starter-validation")
