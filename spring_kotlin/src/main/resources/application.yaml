@@ -2,10 +2,10 @@ spring:
   application:
     name: spring_kotlin
   datasource:
-    url: jdbc:postgresql://postgres:5432/sakila
+    url: ${SPRING_DATASOURCE_URL}
     driver-class-name: org.postgresql.Driver
-    username: sakila
-    password: sakila
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
