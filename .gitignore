@@ -22,3 +22,8 @@ gradle-app.setting
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
 *.war
+
+## gsd-opencode
+opencode.json
+.opencode/
+.planning/
