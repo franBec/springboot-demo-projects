@@ -59,7 +59,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
   testImplementation("com.ninja-squad:springmockk:5.0.1")
-  testImplementation("io.mockk:mockk:1.14.7")
+  testImplementation("io.mockk:mockk:1.14.9")
 
   implementation("io.micrometer:micrometer-registry-prometheus:1.17.0-M2")
 
