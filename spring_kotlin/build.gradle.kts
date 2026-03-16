@@ -6,7 +6,7 @@ plugins {
   id("org.springframework.boot") version "4.0.3"
   id("io.spring.dependency-management") version "1.1.7"
   id("com.diffplug.spotless") version "8.1.0"
-  kotlin("kapt") version "2.3.10"
+  kotlin("kapt") version "2.2.21"
   id("org.openapi.generator") version "7.20.0"
   jacoco
   kotlin("plugin.jpa") version "2.2.21"
