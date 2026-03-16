@@ -8,12 +8,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import dev.pollito.spring_groovy.config.advice.ControllerAdvice
 import dev.pollito.spring_groovy.config.mapper.ModelMapperConfig
 import dev.pollito.spring_groovy.sakila.film.domain.model.Film
+import dev.pollito.spring_groovy.sakila.film.domain.port.in.FindAllPortIn
 import dev.pollito.spring_groovy.sakila.film.domain.port.in.FindByIdPortIn
 import dev.pollito.spring_groovy.test.util.MockMvcResultMatchersTrait
 import org.spockframework.spring.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.web.servlet.MockMvc
 import spock.lang.Specification
 
@@ -29,6 +33,9 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
 
   @SpringBean
   FindByIdPortIn findByIdPortIn = Mock()
+
+  @SpringBean
+  FindAllPortIn findAllPortIn = Mock()
 
   private static String filmPath(Integer id) {
     "${FILMS_PATH}/${id}"
@@ -70,16 +77,21 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
         .andExpect(hasErrorFields(BAD_REQUEST))
   }
 
-  def "findAll returns INTERNAL_SERVER_ERROR"() {
+  def "findAll returns OK"() {
+    given: "a mocked findAll port"
+    findAllPortIn.findAll(_ as Pageable) >> new PageImpl([], PageRequest.of(0, 20), 0)
+
     when: "findAll is requested"
     def result = mockMvc.perform(
         get(FILMS_PATH)
         .accept(APPLICATION_JSON)
         )
 
-    then: "response is INTERNAL_SERVER_ERROR"
+    then: "response is OK"
     result
-        .andExpect(hasStandardApiResponseFields(FILMS_PATH, INTERNAL_SERVER_ERROR))
-        .andExpect(hasErrorFields(INTERNAL_SERVER_ERROR))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields(FILMS_PATH, OK))
+        .andExpect(hasPageFields())
   }
 }

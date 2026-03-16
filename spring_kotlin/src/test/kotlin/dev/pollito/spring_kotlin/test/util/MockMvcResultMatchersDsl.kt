@@ -16,3 +16,11 @@ fun MockMvcResultMatchersDsl.hasStandardApiResponseFields(
 fun MockMvcResultMatchersDsl.hasErrorFields(expectedStatus: HttpStatus) {
   jsonPath("$.title") { value(expectedStatus.reasonPhrase) }
 }
+
+fun MockMvcResultMatchersDsl.hasPageFields() {
+  jsonPath("$.data.content") { isArray() }
+  jsonPath("$.data.pageable.pageNumber") { isNumber() }
+  jsonPath("$.data.pageable.pageSize") { isNumber() }
+  jsonPath("$.data.totalElements") { isNumber() }
+  jsonPath("$.data.totalPages") { isNumber() }
+}

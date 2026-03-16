@@ -56,6 +56,10 @@ class SanityCheckSpringBootTest {
                         "Authorization" to "Bearer secret-token",
                         "X-Api-Key" to "my-secret-key",
                     ),
+            ),
+            TestCase(
+                method = HttpMethod.GET,
+                url = "/api/films",
             )
         )
   }

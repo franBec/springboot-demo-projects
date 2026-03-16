@@ -5,6 +5,7 @@ import dev.pollito.spring_groovy.sakila.film.domain.model.Film as DomainFilm
 import groovy.transform.CompileStatic
 import org.modelmapper.ModelMapper
 import org.modelmapper.TypeMap
+import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 
 @Component
@@ -34,5 +35,9 @@ class FilmJpaMapper {
 
     DomainFilm convert(EntityFilm source) {
         mapper.map(source, DomainFilm)
+    }
+
+    Page<DomainFilm> convert(Page<EntityFilm> source) {
+        source.map { convert(it as EntityFilm) }
     }
 }

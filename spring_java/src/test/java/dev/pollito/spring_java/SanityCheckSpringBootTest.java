@@ -56,7 +56,15 @@ class SanityCheckSpringBootTest {
             /* we don't have yet any endpoint with sensible headers to mask, so let's use this one for now */
             Map.of("Authorization", "Bearer secret-token", "X-Api-Key", "my-secret-key"),
             Collections.emptyMap(),
-            null));
+            null),
+        new TestCase(
+            HttpMethod.GET,
+            "/api/films",
+            Collections.emptyList(),
+            Collections.emptyMap(),
+            Collections.emptyMap(),
+            null)
+        );
   }
 
   private MockHttpServletRequestBuilder buildRequest(

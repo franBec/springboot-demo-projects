@@ -45,6 +45,7 @@ dependencies {
 
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.45'
   implementation 'org.openapitools:jackson-databind-nullable:0.2.8'
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
   implementation 'org.springframework.boot:spring-boot-starter-validation'
 
   testImplementation 'org.spockframework:spock-core:2.4-groovy-5.0'
@@ -163,6 +164,7 @@ openApiGenerate {
     skipDefaultInterface      : "true",
     useJakartaEe              : "true",
     useSpringBoot3            : "true",
+    useSpringDataPageable     : "true",
     useTags                   : "true",
   ]
 }

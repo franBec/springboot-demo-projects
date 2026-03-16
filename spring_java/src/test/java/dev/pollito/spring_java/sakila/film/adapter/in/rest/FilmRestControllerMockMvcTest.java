@@ -1,7 +1,7 @@
 package dev.pollito.spring_java.sakila.film.adapter.in.rest;
 
-import static dev.pollito.spring_java.test.util.MockMvcResultMatchers.hasErrorFields;
-import static dev.pollito.spring_java.test.util.MockMvcResultMatchers.hasStandardApiResponseFields;
+import static dev.pollito.spring_java.test.util.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,11 +14,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.pollito.spring_java.config.advice.ControllerAdvice;
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
+import dev.pollito.spring_java.sakila.film.domain.port.in.FindAllPortIn;
 import dev.pollito.spring_java.sakila.film.domain.port.in.FindByIdPortIn;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -34,6 +39,10 @@ class FilmRestControllerMockMvcTest {
   @SuppressWarnings("unused")
   @Autowired
   private MockMvc mockMvc;
+
+  @SuppressWarnings("unused")
+  @MockitoBean
+  private FindAllPortIn findAllPortIn;
 
   @SuppressWarnings("unused")
   @MockitoBean
@@ -74,11 +83,15 @@ class FilmRestControllerMockMvcTest {
   }
 
   @Test
-  void findAllReturnsINTERNAL_SERVER_ERROR() throws Exception {
-    HttpStatus status = INTERNAL_SERVER_ERROR;
+  void findAllReturnsOK() throws Exception {
+    when(findAllPortIn.findAll(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
+
     mockMvc
         .perform(get(FILMS_PATH).accept(APPLICATION_JSON))
-        .andExpect(hasStandardApiResponseFields(FILMS_PATH, status))
-        .andExpect(hasErrorFields(status));
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields(FILMS_PATH, OK))
+        .andExpect(hasPageFields());
   }
 }

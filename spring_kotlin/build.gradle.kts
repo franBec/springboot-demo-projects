@@ -56,6 +56,7 @@ dependencies {
   val swaggerCoreVersion = "2.2.41"
   implementation("io.swagger.core.v3:swagger-annotations:$swaggerCoreVersion")
   implementation("io.swagger.core.v3:swagger-models:$swaggerCoreVersion")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
   testImplementation("com.ninja-squad:springmockk:5.0.1")
@@ -188,6 +189,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("gen
           "skipDefaultInterface" to "true",
           "useJakartaEe" to "true",
           "useSpringBoot3" to "true",
+          "useSpringDataPageable" to "true",
           "useTags" to "true",
       )
   )

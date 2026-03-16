@@ -8,9 +8,11 @@ import static org.springframework.http.ResponseEntity.ok;
 import dev.pollito.spring_java.generated.api.FilmsApi;
 import dev.pollito.spring_java.generated.model.FilmListResponse;
 import dev.pollito.spring_java.generated.model.FilmResponse;
+import dev.pollito.spring_java.sakila.film.domain.port.in.FindAllPortIn;
 import dev.pollito.spring_java.sakila.film.domain.port.in.FindByIdPortIn;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,12 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class FilmRestController implements FilmsApi {
   private final FindByIdPortIn findByIdPortIn;
+  private final FindAllPortIn findAllPortIn;
   private final FilmRestMapper mapper;
   private final HttpServletRequest request;
 
   @Override
-  public ResponseEntity<FilmListResponse> findAll() {
-    throw new UnsupportedOperationException();
+  public ResponseEntity<FilmListResponse> findAll(Pageable pageable) {
+    return ok(
+        new FilmListResponse()
+            .data(mapper.convert(findAllPortIn.findAll(pageable)))
+            .instance(request.getRequestURI())
+            .timestamp(now())
+            .trace(current().getSpanContext().getTraceId())
+            .status(OK.value()));
   }
 
   @Override

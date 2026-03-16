@@ -24,4 +24,14 @@ trait MockMvcResultMatchersTrait {
       jsonPath('$.title').value(expectedStatus.reasonPhrase).match(result as MvcResult)
     }
   }
+
+  ResultMatcher hasPageFields() {
+    { result ->
+      jsonPath('$.data.content').isArray().match(result as MvcResult)
+      jsonPath('$.data.pageable.pageNumber').isNumber().match(result as MvcResult)
+      jsonPath('$.data.pageable.pageSize').isNumber().match(result as MvcResult)
+      jsonPath('$.data.totalElements').isNumber().match(result as MvcResult)
+      jsonPath('$.data.totalPages').isNumber().match(result as MvcResult)
+    }
+  }
 }

@@ -5,18 +5,52 @@ info:
   description: API for the Sakila sample database - A DVD rental store management system
   contact:
     name: Pollito
-    url: https://pollito.dev
+    url: https://springboot.pollito.tech/about/about-the-author
 servers:
   - url: http://localhost:8080/api
     description: dev
+  - url: https://sakila-kotlin.pollito.tech/api
+    description: prod
 
 paths:
   /films:
     get:
+      x-spring-paginated: true
       tags:
         - Films
       operationId: findAll
       summary: List all films
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-based index)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            maximum: 2147483647
+          required: false
+        - name: size
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          required: false
+        - name: sort
+          in: query
+          description:
+            Sort criteria format `property,asc|desc`. Multiple sort parameters allowed.
+          schema:
+            type: array
+            items:
+              type: string
+              example: "name,asc"
+          style: form
+          explode: true
+          required: false
       responses:
         '200':
           description: Successful response
@@ -88,7 +122,6 @@ components:
         - timestamp
         - trace
         - status
-    # --- Response schemas ---
     # Error response
     Error:
       allOf:
@@ -106,6 +139,52 @@ components:
               example: "No static resource for request '/'."
           required:
             - title
+    Page:
+      type: object
+      description: Sublist of a list of objects. It allows to gain information about the position of it in the containing entire list
+      properties:
+        content:
+          default: []
+
+          items: {}
+          type: array
+        pageable:
+          $ref: "#/components/schemas/Pageable"
+        totalElements:
+          default: 0
+          description: Total number of items that meet the criteria
+          example: 10
+          type: integer
+        totalPages:
+          default: 0
+          description: Total pages of items that meet the criteria
+          example: 10
+          type: integer
+      required:
+        - content
+        - pageable
+        - totalElements
+        - totalPages
+    Pageable:
+      type: object
+      description: Pagination information
+      properties:
+        pageNumber:
+          description: Current page number (starts from 0)
+          example: 0
+          minimum: 0
+          maximum: 2147483647
+          type: integer
+        pageSize:
+          description: Number of items retrieved on this page
+          example: 10
+          minimum: 0
+          maximum: 2147483647
+          type: integer
+      required:
+        - pageNumber
+        - pageSize
+    # Domain schemas
     Film:
       type: object
       description: Represents a film available in the Sakila DVD rental catalog
@@ -150,9 +229,15 @@ components:
         - type: object
           properties:
             data:
-              type: array
-              items:
-                $ref: '#/components/schemas/Film'
+              allOf:
+                - $ref: "#/components/schemas/Page"
+                - type: object
+                  properties:
+                    content:
+                      default: []
+                      items:
+                        $ref: "#/components/schemas/Film"
+                      type: array
           required:
             - data
     FilmResponse:

@@ -129,5 +129,6 @@ class SanityCheckSpringBootSpec extends Specification {
     where:
     method         | url               | pathParams | headers                                                                          | queryParams       | requestBody
     HttpMethod.GET | "/api/films/{id}" | [1]        | ["Authorization": "Bearer secret-token", "X-Api-Key": "my-secret-key"] as Map   | [:] as Map        | null
+    HttpMethod.GET | "/api/films"      | []         | [:] as Map                                                                       | [:] as Map        | null
   }
 }

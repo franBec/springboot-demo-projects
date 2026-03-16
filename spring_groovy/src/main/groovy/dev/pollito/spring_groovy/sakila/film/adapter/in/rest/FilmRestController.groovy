@@ -7,10 +7,12 @@ import static org.springframework.http.ResponseEntity.ok
 import dev.pollito.spring_groovy.generated.api.FilmsApi
 import dev.pollito.spring_groovy.generated.model.FilmListResponse
 import dev.pollito.spring_groovy.generated.model.FilmResponse
+import dev.pollito.spring_groovy.sakila.film.domain.port.in.FindAllPortIn
 import dev.pollito.spring_groovy.sakila.film.domain.port.in.FindByIdPortIn
 import groovy.transform.CompileStatic
 import io.opentelemetry.api.trace.Span
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 
@@ -18,18 +20,28 @@ import org.springframework.web.bind.annotation.RestController
 @CompileStatic
 class FilmRestController implements FilmsApi {
   FindByIdPortIn findByIdPortIn
+  FindAllPortIn findAllPortIn
   FilmRestMapper mapper
   HttpServletRequest request
 
-  FilmRestController(FindByIdPortIn findByIdPortIn, FilmRestMapper mapper, HttpServletRequest request) {
+  FilmRestController(FindByIdPortIn findByIdPortIn, FindAllPortIn findAllPortIn, FilmRestMapper mapper, HttpServletRequest request) {
     this.findByIdPortIn = findByIdPortIn
+    this.findAllPortIn = findAllPortIn
     this.mapper = mapper
     this.request = request
   }
 
   @Override
-  ResponseEntity<FilmListResponse> findAll() {
-    throw new UnsupportedOperationException()
+  ResponseEntity<FilmListResponse> findAll(Pageable pageable) {
+    ok(
+        new FilmListResponse(
+        data: mapper.convert(findAllPortIn.findAll(pageable)),
+        instance: request.requestURI,
+        timestamp: now(),
+        trace: Span.current().spanContext.traceId,
+        status: OK.value()
+        )
+        )
   }
 
   @Override

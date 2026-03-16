@@ -6,6 +6,7 @@ import java.time.LocalDate
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.springframework.core.convert.converter.Converter
+import org.springframework.data.domain.Page
 
 @Mapper(config = MapperSpringConfig::class)
 interface FilmJpaMapper : Converter<dev.pollito.spring_kotlin.generated.entity.Film, Film> {
@@ -15,4 +16,7 @@ interface FilmJpaMapper : Converter<dev.pollito.spring_kotlin.generated.entity.F
   override fun convert(source: dev.pollito.spring_kotlin.generated.entity.Film): Film
 
   fun mapReleaseYear(releaseYear: LocalDate?): Int? = releaseYear?.year
+
+  fun convert(source: Page<dev.pollito.spring_kotlin.generated.entity.Film>): Page<Film> =
+      source.map { convert(it) }
 }
