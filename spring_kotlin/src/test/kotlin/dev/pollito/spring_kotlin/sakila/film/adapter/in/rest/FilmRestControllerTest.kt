@@ -9,7 +9,6 @@ import dev.pollito.spring_kotlin.test.util.hasStandardApiResponseFields
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
@@ -17,11 +16,9 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
-@ExtendWith(SpringExtension::class)
 @WebMvcTest(FilmRestController::class)
 @Import(ControllerAdvice::class, FilmRestMapperImpl::class)
 class FilmRestControllerTest {
