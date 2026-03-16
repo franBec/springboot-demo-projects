@@ -55,7 +55,11 @@ dependencies {
   implementation 'org.openapitools:jackson-databind-nullable:0.2.9'
   implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+<<<<<<< dependabot/gradle/spring_java/io.micrometer-micrometer-registry-prometheus-1.17.0-M3
   implementation 'io.micrometer:micrometer-registry-prometheus:1.17.0-M3'
+=======
+  implementation 'io.micrometer:micrometer-registry-prometheus:1.17.0-M2'
+>>>>>>> main
 
   def h2Version = '2.4.240'
   def hibernateVersion = '7.0.2.Final'
