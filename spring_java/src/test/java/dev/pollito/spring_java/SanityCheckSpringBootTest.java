@@ -63,8 +63,7 @@ class SanityCheckSpringBootTest {
             Collections.emptyList(),
             Collections.emptyMap(),
             Collections.emptyMap(),
-            null)
-        );
+            null));
   }
 
   private MockHttpServletRequestBuilder buildRequest(

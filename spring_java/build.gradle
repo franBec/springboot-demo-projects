@@ -59,7 +59,7 @@ dependencies {
   implementation 'io.micrometer:micrometer-registry-prometheus:1.17.0-M3'
 
   def h2Version = '2.4.240'
-  def hibernateVersion = '7.0.2.Final'
+  def hibernateVersion = '7.2.6.Final'
   hibernateTools "com.h2database:h2:${h2Version}"
   hibernateTools "org.hibernate.tool:hibernate-tools-ant:${hibernateVersion}"
   hibernateTools "org.hibernate.orm:hibernate-core:${hibernateVersion}"
@@ -198,14 +198,30 @@ tasks.register('generateEntities') {
     def tempPropsFile = layout.buildDirectory.file("tmp/hibernate-tools.properties").get().asFile
     tempPropsFile.parentFile.mkdirs()
 
+    def h2DbDir = layout.buildDirectory.dir("tmp").get().asFile
+    h2DbDir.mkdirs()
+    h2DbDir.listFiles()?.findAll { it.name.startsWith("sakila-h2") }?.each { it.delete() }
+
+    def h2DbPath = layout.buildDirectory.file("tmp/sakila-h2").get().asFile.absolutePath.replace('\\', '/')
+    def sqlPath = sqlFile.asFile.absolutePath.replace('\\', '/')
+
+    def h2Loader = new URLClassLoader(
+        configurations.hibernateTools.collect { it.toURI().toURL() } as URL[],
+        ClassLoader.systemClassLoader
+        )
+    def jdbcProps = new java.util.Properties()
+    jdbcProps.setProperty('user', 'sa')
+    jdbcProps.setProperty('password', '')
+    def h2Driver = h2Loader.loadClass('org.h2.Driver').getDeclaredConstructor().newInstance()
+    def initConn = h2Driver.connect("jdbc:h2:file:${h2DbPath};INIT=RUNSCRIPT FROM '${sqlPath}'", jdbcProps)
+    initConn.close()
+    h2Loader.close()
+
     def props = new Properties()
     if (basePropsFile.asFile.exists()) {
       basePropsFile.asFile.withInputStream { props.load(it) }
     }
-    props.setProperty(
-        'hibernate.connection.url',
-        "jdbc:h2:mem:sakila;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM '${sqlFile.asFile.absolutePath.replace('\\', '/')}'"
-        )
+    props.setProperty('hibernate.connection.url', "jdbc:h2:file:${h2DbPath}")
 
     tempPropsFile.withOutputStream { props.store(it, null) }
 

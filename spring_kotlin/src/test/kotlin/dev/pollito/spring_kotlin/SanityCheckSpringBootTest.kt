@@ -60,7 +60,7 @@ class SanityCheckSpringBootTest {
             TestCase(
                 method = HttpMethod.GET,
                 url = "/api/films",
-            )
+            ),
         )
   }
 
