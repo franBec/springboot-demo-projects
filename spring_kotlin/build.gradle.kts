@@ -10,7 +10,7 @@ plugins {
   kotlin("kapt") version "2.2.21"
   id("org.openapi.generator") version "7.20.0"
   jacoco
-  kotlin("plugin.jpa") version "2.2.21"
+  kotlin("plugin.jpa") version "2.3.20"
 }
 
 group = "dev.pollito"
