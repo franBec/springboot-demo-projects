@@ -4,6 +4,7 @@ plugins {
   id("org.springframework.boot") version "4.0.3"
   id("io.spring.dependency-management") version "1.1.7"
   id("com.diffplug.spotless") version "8.2.1"
+  kotlin("kapt") version "2.3.10"
 }
 
 group = "dev.pollito"
@@ -29,6 +30,10 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+  val mapstructVersion = "1.7.0.Beta1"
+  implementation("org.mapstruct:mapstruct:$mapstructVersion")
+  kapt("org.mapstruct:mapstruct-processor:$mapstructVersion")
 }
 
 kotlin {

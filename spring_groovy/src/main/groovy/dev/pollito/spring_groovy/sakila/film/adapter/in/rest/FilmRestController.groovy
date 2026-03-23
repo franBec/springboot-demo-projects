@@ -1,7 +1,5 @@
 package dev.pollito.spring_groovy.sakila.film.adapter.in.rest
 
-import static FilmRestMapper.map
-
 import dev.pollito.spring_groovy.sakila.film.adapter.in.rest.dto.FilmResponse
 import dev.pollito.spring_groovy.sakila.film.domain.port.in.FilmUseCases
 import groovy.transform.CompileStatic
@@ -15,13 +13,15 @@ import org.springframework.web.bind.annotation.RestController
 @CompileStatic
 class FilmRestController {
   FilmUseCases useCases
+  FilmRestMapper mapper
 
-  FilmRestController(FilmUseCases useCases) {
+  FilmRestController(FilmUseCases useCases, FilmRestMapper mapper) {
     this.useCases = useCases
+    this.mapper = mapper
   }
 
   @GetMapping("/{id}")
   FilmResponse getFilm(@PathVariable("id") Integer id) {
-    map(useCases.getFilm(id))
+    mapper.map(useCases.getFilm(id))
   }
 }

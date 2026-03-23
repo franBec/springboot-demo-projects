@@ -1,25 +1,12 @@
 package dev.pollito.spring_java.sakila.film.adapter.in.rest;
 
-import static java.util.Objects.isNull;
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 import dev.pollito.spring_java.sakila.film.adapter.in.rest.dto.FilmResponse;
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class FilmRestMapper {
-  public FilmResponse map(Film source) {
-    if (isNull(source)) {
-      return null;
-    }
-    return FilmResponse.builder()
-        .id(source.getId())
-        .title(source.getTitle())
-        .description(source.getDescription())
-        .releaseYear(source.getReleaseYear())
-        .rating(source.getRating())
-        .length(source.getLength())
-        .language(source.getLanguage())
-        .build();
-  }
+@Mapper(componentModel = SPRING)
+public interface FilmRestMapper {
+  FilmResponse map(Film source);
 }
