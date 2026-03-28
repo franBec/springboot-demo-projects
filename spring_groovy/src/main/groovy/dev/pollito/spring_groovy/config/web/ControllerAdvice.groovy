@@ -1,17 +1,19 @@
 package dev.pollito.spring_groovy.config.web
 
-import static java.time.Instant.now
-import static java.time.format.DateTimeFormatter.ISO_INSTANT
+import static java.time.OffsetDateTime.now
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR
 import static org.springframework.http.HttpStatus.Series.SERVER_ERROR
+import static org.springframework.http.ResponseEntity.status
 
+import dev.pollito.spring_groovy.sakila.generated.model.Error
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.opentelemetry.api.trace.Span
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
-import org.springframework.http.ProblemDetail
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.resource.NoResourceFoundException
@@ -20,11 +22,17 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 @Slf4j
 @CompileStatic
 class ControllerAdvice {
-  private static ProblemDetail buildProblemDetail(Exception e, HttpStatus status) {
+  private final HttpServletRequest request
+
+  ControllerAdvice(HttpServletRequest request) {
+    this.request = request
+  }
+
+  private ResponseEntity<Error> buildErrorResponse(Exception e, HttpStatus httpStatus) {
     def exceptionSimpleName = e.class.simpleName
     def logMessage = "${exceptionSimpleName} being handled"
 
-    switch (status.series()) {
+    switch (httpStatus.series()) {
       case SERVER_ERROR:
         log.error(logMessage, e)
         break
@@ -36,20 +44,24 @@ class ControllerAdvice {
         break
     }
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, e.getLocalizedMessage())
-    problemDetail.setProperty("timestamp", ISO_INSTANT.format(now()))
-    problemDetail.setProperty("trace", Span.current().spanContext.traceId)
-
-    problemDetail
+    status(httpStatus).body(
+        new Error()
+        .detail(e.getLocalizedMessage())
+        .instance(request.requestURI)
+        .status(httpStatus.value())
+        .timestamp(now())
+        .title(httpStatus.reasonPhrase)
+        .trace(Span.current().spanContext.traceId)
+        )
   }
 
   @ExceptionHandler(Exception.class)
-  ProblemDetail handle(Exception e) {
-    buildProblemDetail(e, INTERNAL_SERVER_ERROR)
+  ResponseEntity<Error> handle(Exception e) {
+    buildErrorResponse(e, INTERNAL_SERVER_ERROR)
   }
 
   @ExceptionHandler(NoResourceFoundException)
-  ProblemDetail handle(NoResourceFoundException e) {
-    buildProblemDetail(e, NOT_FOUND)
+  ResponseEntity<Error> handle(NoResourceFoundException e) {
+    buildErrorResponse(e, NOT_FOUND)
   }
 }

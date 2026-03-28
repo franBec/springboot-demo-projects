@@ -1,7 +1,7 @@
 package dev.pollito.spring_groovy.sakila.film.adapter.in.rest
 
-import dev.pollito.spring_groovy.sakila.film.adapter.in.rest.dto.FilmResponse
 import dev.pollito.spring_groovy.sakila.film.domain.model.Film
+import dev.pollito.spring_groovy.sakila.generated.model.Film as GeneratedFilm
 import groovy.transform.CompileStatic
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ class FilmRestMapper {
     this.mapper = mapper
   }
 
-  FilmResponse map(Film source) {
-    mapper.map(source, FilmResponse)
+  GeneratedFilm map(Film source) {
+    mapper.map(source, GeneratedFilm)
   }
 }
