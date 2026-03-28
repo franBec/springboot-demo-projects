@@ -2,17 +2,18 @@ package dev.pollito.spring_java.config.web;
 
 import static io.opentelemetry.api.trace.Span.current;
 import static java.time.OffsetDateTime.now;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ResponseEntity.status;
 
 import dev.pollito.spring_java.sakila.generated.model.Error;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -53,5 +54,15 @@ public class ControllerAdvice {
   @ExceptionHandler(NoResourceFoundException.class)
   public ResponseEntity<Error> handle(NoResourceFoundException e) {
     return buildProblemDetail(e, NOT_FOUND);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<Error> handle(ConstraintViolationException e) {
+    return buildProblemDetail(e, BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<Error> handle(MethodArgumentNotValidException e) {
+    return buildProblemDetail(e, BAD_REQUEST);
   }
 }
