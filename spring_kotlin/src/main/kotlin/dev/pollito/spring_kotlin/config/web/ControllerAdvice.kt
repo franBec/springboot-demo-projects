@@ -4,11 +4,14 @@ import dev.pollito.spring_kotlin.sakila.generated.model.Error
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.api.trace.Span.current
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.validation.ConstraintViolationException
 import java.time.OffsetDateTime.now
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.resource.NoResourceFoundException
@@ -49,5 +52,15 @@ class ControllerAdvice(private val request: HttpServletRequest) {
   @ExceptionHandler(NoResourceFoundException::class)
   fun handle(e: NoResourceFoundException): ResponseEntity<Error> {
     return buildErrorResponse(e, NOT_FOUND)
+  }
+
+  @ExceptionHandler(ConstraintViolationException::class)
+  fun handle(e: ConstraintViolationException): ResponseEntity<Error> {
+    return buildErrorResponse(e, BAD_REQUEST)
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException::class)
+  fun handle(e: MethodArgumentNotValidException): ResponseEntity<Error> {
+    return buildErrorResponse(e, BAD_REQUEST)
   }
 }
