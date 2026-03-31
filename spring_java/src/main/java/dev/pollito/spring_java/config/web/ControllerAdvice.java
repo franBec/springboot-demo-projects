@@ -8,6 +8,7 @@ import static org.springframework.http.ResponseEntity.status;
 import dev.pollito.spring_java.sakila.generated.model.Error;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -64,5 +65,10 @@ public class ControllerAdvice {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Error> handle(MethodArgumentNotValidException e) {
     return buildProblemDetail(e, BAD_REQUEST);
+  }
+
+  @ExceptionHandler(NoSuchElementException.class)
+  public ResponseEntity<Error> handle(NoSuchElementException e) {
+    return buildProblemDetail(e, NOT_FOUND);
   }
 }
