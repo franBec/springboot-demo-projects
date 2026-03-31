@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
@@ -64,6 +65,12 @@ class ControllerAdviceMockMvcTest {
               FakeController.class.getMethod("throwMethodArgumentNotValidException"), -1),
           mock(BindingResult.class));
     }
+
+    @GetMapping("/no-such-element")
+    @SuppressWarnings("unused")
+    public void throwNoSuchElementException() {
+      throw new NoSuchElementException("No such element");
+    }
   }
 
   @BeforeEach
@@ -79,7 +86,8 @@ class ControllerAdviceMockMvcTest {
         Arguments.of("/fake/not-found", NOT_FOUND),
         Arguments.of("/fake/error", INTERNAL_SERVER_ERROR),
         Arguments.of("/fake/bad-request", BAD_REQUEST),
-        Arguments.of("/fake/method-arg-not-valid", BAD_REQUEST));
+        Arguments.of("/fake/method-arg-not-valid", BAD_REQUEST),
+        Arguments.of("/fake/no-such-element", NOT_FOUND));
   }
 
   @ParameterizedTest
