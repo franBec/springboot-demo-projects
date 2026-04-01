@@ -14,6 +14,7 @@ import groovy.util.logging.Slf4j
 import io.opentelemetry.api.trace.Span
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
+import java.util.NoSuchElementException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -76,5 +77,10 @@ class ControllerAdvice {
   @ExceptionHandler(MethodArgumentNotValidException)
   ResponseEntity<Error> handle(MethodArgumentNotValidException e) {
     buildErrorResponse(e, BAD_REQUEST)
+  }
+
+  @ExceptionHandler(NoSuchElementException)
+  ResponseEntity<Error> handle(NoSuchElementException e) {
+    buildErrorResponse(e, NOT_FOUND)
   }
 }
