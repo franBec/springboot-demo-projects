@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 import dev.pollito.spring_groovy.test.util.MockMvcResultMatchersTrait
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
+import java.util.NoSuchElementException
 import org.springframework.core.MethodParameter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.validation.BeanPropertyBindingResult
@@ -54,6 +55,12 @@ class ControllerAdviceMockMvcSpec extends Specification implements MockMvcResult
       new BeanPropertyBindingResult(new Object(), "object")
       )
     }
+
+    @GetMapping("/no-such-element")
+    @SuppressWarnings("unused")
+    static void throwNoSuchElementException() {
+      throw new NoSuchElementException("No such element")
+    }
   }
 
   def setup() {
@@ -79,5 +86,6 @@ class ControllerAdviceMockMvcSpec extends Specification implements MockMvcResult
     "/fake/error"                       | INTERNAL_SERVER_ERROR || "Exception"
     "/fake/bad-request"                 | BAD_REQUEST           || "ConstraintViolationException"
     "/fake/method-argument-not-valid"   | BAD_REQUEST           || "MethodArgumentNotValidException"
+    "/fake/no-such-element"             | NOT_FOUND             || "NoSuchElementException"
   }
 }
