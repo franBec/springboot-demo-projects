@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
+import java.util.NoSuchElementException
 import java.util.stream.Stream
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
@@ -59,6 +60,11 @@ class ControllerAdviceMockMvcTest {
           mockk<BindingResult>(relaxed = true),
       )
     }
+
+    @GetMapping("/no-such-element")
+    fun throwNoSuchElementException() {
+      throw NoSuchElementException("No such element")
+    }
   }
 
   companion object {
@@ -69,6 +75,7 @@ class ControllerAdviceMockMvcTest {
             Arguments.of("/fake/error", INTERNAL_SERVER_ERROR),
             Arguments.of("/fake/bad-request", BAD_REQUEST),
             Arguments.of("/fake/method-arg-not-valid", BAD_REQUEST),
+            Arguments.of("/fake/no-such-element", NOT_FOUND),
         )
   }
 
