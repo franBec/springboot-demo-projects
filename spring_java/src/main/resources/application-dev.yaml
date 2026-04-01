@@ -25,6 +25,11 @@ spring:
       path: /h2-console
       settings:
         web-allow-others: false
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100
 management:
   otlp:
     metrics:

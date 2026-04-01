@@ -22,4 +22,14 @@ public final class MockMvcResultMatchers {
   public static ResultMatcher hasErrorFields(HttpStatus expectedStatus) {
     return result -> jsonPath("$.title").value(expectedStatus.getReasonPhrase()).match(result);
   }
+
+  public static ResultMatcher hasPageFields() {
+    return result -> {
+      jsonPath("$.data.content").isArray().match(result);
+      jsonPath("$.data.pageable.pageNumber").isNumber().match(result);
+      jsonPath("$.data.pageable.pageSize").isNumber().match(result);
+      jsonPath("$.data.totalElements").isNumber().match(result);
+      jsonPath("$.data.totalPages").isNumber().match(result);
+    };
+  }
 }
