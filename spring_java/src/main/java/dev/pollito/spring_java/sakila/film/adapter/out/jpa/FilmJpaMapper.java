@@ -1,5 +1,6 @@
 package dev.pollito.spring_java.sakila.film.adapter.out.jpa;
 
+import static java.util.Objects.requireNonNull;
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 import dev.pollito.spring_java.common.util.EnumUtils;
@@ -8,8 +9,10 @@ import dev.pollito.spring_java.sakila.film.domain.model.FilmLanguage;
 import dev.pollito.spring_java.sakila.film.domain.model.FilmRating;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import org.jspecify.annotations.NonNull;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.data.domain.Page;
 
 @Mapper(
     componentModel = SPRING,
@@ -44,4 +47,9 @@ public interface FilmJpaMapper {
       expression =
           "java(source.getLastUpdate() != null ? source.getLastUpdate().atOffset(ZoneOffset.UTC) : null)")
   Film map(dev.pollito.spring_java.sakila.generated.entity.Film source);
+
+  default Page<Film> map(
+      @NonNull Page<dev.pollito.spring_java.sakila.generated.entity.Film> source) {
+    return source.map(it -> requireNonNull(map(it)));
+  }
 }

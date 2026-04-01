@@ -11,8 +11,8 @@ import dev.pollito.spring_java.sakila.generated.model.FilmFields;
 import dev.pollito.spring_java.sakila.generated.model.FilmListResponse;
 import dev.pollito.spring_java.sakila.generated.model.FilmResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,8 +45,14 @@ public class FilmRestController implements FilmsApi {
   }
 
   @Override
-  public ResponseEntity<FilmListResponse> getFilms(Integer page, Integer size, List<String> sort) {
-    throw new RuntimeException("Not implemented");
+  public ResponseEntity<FilmListResponse> getFilms(Pageable pageable) {
+    return ok(
+        new FilmListResponse()
+            .data(mapper.map(useCases.getFilms(pageable)))
+            .instance(request.getRequestURI())
+            .timestamp(now())
+            .trace(current().getSpanContext().getTraceId())
+            .status(OK.value()));
   }
 
   @Override

@@ -17,6 +17,7 @@ tags:
 paths:
   /films:
     get:
+      x-spring-paginated: true
       tags:
         - Films
       operationId: getFilms

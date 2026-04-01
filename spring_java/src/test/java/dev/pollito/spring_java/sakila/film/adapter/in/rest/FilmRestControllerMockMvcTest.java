@@ -1,10 +1,12 @@
 package dev.pollito.spring_java.sakila.film.adapter.in.rest;
 
-import static dev.pollito.spring_java.test.util.MockMvcResultMatchers.hasErrorFields;
-import static dev.pollito.spring_java.test.util.MockMvcResultMatchers.hasStandardApiResponseFields;
+import static dev.pollito.spring_java.test.util.MockMvcResultMatchers.*;
+import static java.util.Collections.emptyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.data.domain.PageRequest.of;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -21,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -70,12 +74,16 @@ class FilmRestControllerMockMvcTest {
   }
 
   @Test
-  void getFilmsReturnsINTERNAL_SERVER_ERROR() throws Exception {
-    HttpStatus status = INTERNAL_SERVER_ERROR;
+  void getFilmsReturnsOK() throws Exception {
+    when(filmUseCases.getFilms(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(emptyList(), of(0, 10), 0));
+
     mockMvc
         .perform(get(PATH).accept(APPLICATION_JSON))
-        .andExpect(hasStandardApiResponseFields(PATH, status))
-        .andExpect(hasErrorFields(status));
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields(PATH, OK))
+        .andExpect(hasPageFields());
   }
 
   @Test

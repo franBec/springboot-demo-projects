@@ -12,3 +12,8 @@ spring:
   sql:
     init:
       mode: never
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100

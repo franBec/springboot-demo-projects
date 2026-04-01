@@ -4,6 +4,8 @@ import dev.pollito.spring_java.sakila.film.domain.model.Film;
 import dev.pollito.spring_java.sakila.film.domain.port.in.FilmUseCases;
 import dev.pollito.spring_java.sakila.film.domain.port.out.FilmRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,5 +16,10 @@ public class FilmUseCasesImpl implements FilmUseCases {
   @Override
   public Film getFilm(Integer id) {
     return repository.getFilm(id);
+  }
+
+  @Override
+  public Page<Film> getFilms(Pageable pageable) {
+    return repository.getFilms(pageable);
   }
 }

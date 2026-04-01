@@ -1,6 +1,7 @@
 package dev.pollito.spring_java.sakila.film.adapter.out.jpa;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.data.domain.PageRequest.of;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS;
 
 import dev.pollito.spring_java.sakila.film.domain.port.out.FilmRepository;
@@ -26,5 +27,10 @@ class FilmRepositoryImplDataJpaTest {
   @Test
   void getFilmReturnsADomainModel() {
     assertNotNull(repository.getFilm(1));
+  }
+
+  @Test
+  void getFilmsReturnsAPage() {
+    assertNotNull(repository.getFilms(of(0, 10)));
   }
 }
