@@ -6,6 +6,7 @@ import io.opentelemetry.api.trace.Span.current
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
 import java.time.OffsetDateTime.now
+import java.util.NoSuchElementException
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
@@ -62,5 +63,10 @@ class ControllerAdvice(private val request: HttpServletRequest) {
   @ExceptionHandler(MethodArgumentNotValidException::class)
   fun handle(e: MethodArgumentNotValidException): ResponseEntity<Error> {
     return buildErrorResponse(e, BAD_REQUEST)
+  }
+
+  @ExceptionHandler(NoSuchElementException::class)
+  fun handle(e: NoSuchElementException): ResponseEntity<Error> {
+    return buildErrorResponse(e, NOT_FOUND)
   }
 }
