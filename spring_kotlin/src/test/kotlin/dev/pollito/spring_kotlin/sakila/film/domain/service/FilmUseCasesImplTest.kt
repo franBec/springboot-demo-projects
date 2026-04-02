@@ -9,6 +9,8 @@ import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 
 @ExtendWith(MockKExtension::class)
 class FilmUseCasesImplTest {
@@ -19,5 +21,11 @@ class FilmUseCasesImplTest {
   fun `getFilm returns a domain model`() {
     every { repository.getFilm(any()) } returns mockk()
     assertNotNull(useCases.getFilm(1))
+  }
+
+  @Test
+  fun `getFilms returns a Page`() {
+    every { repository.getFilms(any()) } returns PageImpl(emptyList(), PageRequest.of(0, 10), 0)
+    assertNotNull(useCases.getFilms(PageRequest.of(0, 10)))
   }
 }

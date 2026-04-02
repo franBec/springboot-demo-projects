@@ -6,6 +6,7 @@ import kotlin.test.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS
@@ -24,5 +25,10 @@ class FilmRepositoryImplDataJpaTest {
   @Test
   fun `getFilm gets an entity and returns a domain model`() {
     assertNotNull(repository.getFilm(1))
+  }
+
+  @Test
+  fun `getFilms returns a Page`() {
+    assertNotNull(repository.getFilms(PageRequest.of(0, 10)))
   }
 }

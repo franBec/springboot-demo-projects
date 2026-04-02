@@ -5,6 +5,7 @@ import dev.pollito.spring_kotlin.config.web.ControllerAdvice
 import dev.pollito.spring_kotlin.sakila.film.domain.model.Film
 import dev.pollito.spring_kotlin.sakila.film.domain.port.`in`.FilmUseCases
 import dev.pollito.spring_kotlin.test.util.hasErrorFields
+import dev.pollito.spring_kotlin.test.util.hasPageFields
 import dev.pollito.spring_kotlin.test.util.hasStandardApiResponseFields
 import io.mockk.every
 import io.mockk.mockk
@@ -13,6 +14,8 @@ import kotlin.test.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -58,13 +61,15 @@ class FilmRestControllerMockMvcTest {
   }
 
   @Test
-  fun `getFilms returns INTERNAL_SERVER_ERROR`() {
+  fun `getFilms returns OK`() {
+    every { useCases.getFilms(any()) } returns PageImpl(emptyList(), PageRequest.of(0, 10), 0)
+
     mockMvc
         .get(PATH) { accept = APPLICATION_JSON }
         .andExpect {
-          status { isInternalServerError() }
-          hasStandardApiResponseFields(PATH, INTERNAL_SERVER_ERROR)
-          hasErrorFields(INTERNAL_SERVER_ERROR)
+          status { isOk() }
+          hasStandardApiResponseFields(PATH, OK)
+          hasPageFields()
         }
   }
 
