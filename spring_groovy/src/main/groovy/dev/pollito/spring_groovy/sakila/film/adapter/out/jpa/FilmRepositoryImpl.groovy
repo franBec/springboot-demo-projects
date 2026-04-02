@@ -3,6 +3,8 @@ package dev.pollito.spring_groovy.sakila.film.adapter.out.jpa
 import dev.pollito.spring_groovy.sakila.film.domain.model.Film
 import dev.pollito.spring_groovy.sakila.film.domain.port.out.FilmRepository
 import groovy.transform.CompileStatic
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,5 +21,10 @@ class FilmRepositoryImpl implements FilmRepository {
   @Override
   Film getFilm(Integer id) {
     mapper.map(repository.findById(id).orElseThrow())
+  }
+
+  @Override
+  Page<Film> getFilms(Pageable pageable) {
+    mapper.map(repository.findAll(pageable))
   }
 }

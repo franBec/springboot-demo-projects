@@ -21,4 +21,14 @@ trait MockMvcResultMatchersTrait {
       jsonPath('$.title').value(expectedStatus.reasonPhrase).match(result)
     } as ResultMatcher
   }
+
+  ResultMatcher hasPageFields() {
+    { result ->
+      jsonPath('$.data.content').isArray().match(result)
+      jsonPath('$.data.pageable.pageNumber').isNumber().match(result)
+      jsonPath('$.data.pageable.pageSize').isNumber().match(result)
+      jsonPath('$.data.totalElements').isNumber().match(result)
+      jsonPath('$.data.totalPages').isNumber().match(result)
+    } as ResultMatcher
+  }
 }
