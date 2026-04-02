@@ -53,7 +53,7 @@ dependencies {
   implementation 'io.micrometer:micrometer-registry-prometheus:1.17.0-M2'
 
   def h2Version = '2.4.240'
-  def hibernateVersion = '7.2.6.Final'
+  def hibernateVersion = '7.3.0.Final'
   hibernateTools "com.h2database:h2:${h2Version}"
   hibernateTools "org.hibernate.tool:hibernate-tools-ant:${hibernateVersion}"
   hibernateTools "org.hibernate.orm:hibernate-core:${hibernateVersion}"
