@@ -9,6 +9,7 @@ import java.time.ZoneOffset
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.MappingConstants.ComponentModel.SPRING
+import org.springframework.data.domain.Page
 
 @Mapper(
     componentModel = SPRING,
@@ -50,4 +51,7 @@ interface FilmJpaMapper {
           "java(source.getLastUpdate() != null ? source.getLastUpdate().atOffset(ZoneOffset.UTC) : null)",
   )
   fun map(source: dev.pollito.spring_kotlin.sakila.generated.entity.Film): Film
+
+  fun map(source: Page<dev.pollito.spring_kotlin.sakila.generated.entity.Film>): Page<Film> =
+      source.map { map(it) }
 }

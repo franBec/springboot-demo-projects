@@ -22,6 +22,7 @@ paths:
       operationId: getFilms
       summary: Lists films
       description: Returns a standard response where the data property is a page of films matching the parameters criteria
+      x-spring-paginated: true
       parameters:
         - name: page
           in: query

@@ -6,6 +6,7 @@ import kotlin.test.assertEquals
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS
@@ -24,5 +25,12 @@ class FilmRepositoryImplDataJpaTest {
   @Test
   fun `getFilm gets an entity and returns a domain model`() {
     assertEquals(1, repository.getFilm(1).id)
+  }
+
+  @Test
+  fun `getFilms returns a Page`() {
+    val page = repository.getFilms(PageRequest.of(0, 10))
+    assertEquals(10, page.content.size)
+    assertEquals(listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), page.content.map { it.id })
   }
 }

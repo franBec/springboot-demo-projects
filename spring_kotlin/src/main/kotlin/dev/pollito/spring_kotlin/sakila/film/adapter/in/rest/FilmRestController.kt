@@ -8,6 +8,7 @@ import dev.pollito.spring_kotlin.sakila.generated.model.FilmResponse
 import io.opentelemetry.api.trace.Span.current
 import jakarta.servlet.http.HttpServletRequest
 import java.time.OffsetDateTime.now
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
@@ -40,12 +41,16 @@ class FilmRestController(
     )
   }
 
-  override fun getFilms(
-      page: Int,
-      size: Int,
-      sort: List<String>?,
-  ): ResponseEntity<FilmListResponse> {
-    throw RuntimeException("Not implemented")
+  override fun getFilms(pageable: Pageable): ResponseEntity<FilmListResponse> {
+    return ok(
+        FilmListResponse(
+            data = mapper.map(useCases.getFilms(pageable)),
+            instance = request.requestURI,
+            timestamp = now(),
+            trace = current().spanContext.traceId,
+            status = OK.value(),
+        )
+    )
   }
 
   override fun updateFilm(id: Int, filmFields: FilmFields): ResponseEntity<FilmResponse> {
