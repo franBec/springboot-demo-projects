@@ -12,6 +12,7 @@ import dev.pollito.spring_groovy.sakila.generated.model.FilmResponse
 import groovy.transform.CompileStatic
 import io.opentelemetry.api.trace.Span
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 
@@ -51,8 +52,15 @@ class FilmRestController implements FilmsApi {
   }
 
   @Override
-  ResponseEntity<FilmListResponse> getFilms(Integer page, Integer size, List<String> sort) {
-    throw new RuntimeException("Not implemented")
+  ResponseEntity<FilmListResponse> getFilms(Pageable pageable) {
+    ok(
+        new FilmListResponse()
+        .data(mapper.map(useCases.getFilms(pageable)))
+        .instance(request.requestURI)
+        .timestamp(now())
+        .trace(Span.current().spanContext.traceId)
+        .status(OK.value())
+        )
   }
 
   @Override

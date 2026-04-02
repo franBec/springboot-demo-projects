@@ -10,6 +10,7 @@ import java.time.ZoneOffset
 import org.modelmapper.ModelMapper
 import org.modelmapper.TypeMap
 import org.modelmapper.spi.MappingContext
+import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 
 @Component
@@ -51,5 +52,9 @@ class FilmJpaMapper {
 
   Film map(GeneratedFilm source) {
     mapper.map(source, Film)
+  }
+
+  Page<Film> map(Page<GeneratedFilm> source) {
+    source.map {  it -> map(it) }
   }
 }

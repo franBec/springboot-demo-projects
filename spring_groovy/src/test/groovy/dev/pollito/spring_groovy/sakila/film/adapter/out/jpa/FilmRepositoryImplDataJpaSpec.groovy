@@ -1,5 +1,6 @@
 package dev.pollito.spring_groovy.sakila.film.adapter.out.jpa
 
+import static org.springframework.data.domain.PageRequest.of
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS
 
 import dev.pollito.spring_groovy.config.mapper.ModelMapperConfig
@@ -28,6 +29,14 @@ class FilmRepositoryImplDataJpaSpec extends Specification {
     def result = repository.getFilm(1)
 
     then: "a domain model is returned"
+    result != null
+  }
+
+  def "getFilms returns a page"() {
+    when: "getFilms is called"
+    def result = repository.getFilms(of(0, 10))
+
+    then: "a page is returned"
     result != null
   }
 }

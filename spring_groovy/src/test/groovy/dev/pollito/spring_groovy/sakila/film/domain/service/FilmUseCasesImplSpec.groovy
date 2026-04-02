@@ -2,6 +2,9 @@ package dev.pollito.spring_groovy.sakila.film.domain.service
 
 import dev.pollito.spring_groovy.sakila.film.domain.model.Film
 import dev.pollito.spring_groovy.sakila.film.domain.port.out.FilmRepository
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -17,6 +20,17 @@ class FilmUseCasesImplSpec extends Specification {
     def result = useCases.getFilm(1)
 
     then: "a domain model is returned"
+    result != null
+  }
+
+  def "getFilms returns a page"() {
+    given: "a mocked repository"
+    repository.getFilms(_ as Pageable) >> new PageImpl<>([], PageRequest.of(0, 10), 0)
+
+    when: "getFilms is called"
+    def result = useCases.getFilms(PageRequest.of(0, 10))
+
+    then: "a page is returned"
     result != null
   }
 }

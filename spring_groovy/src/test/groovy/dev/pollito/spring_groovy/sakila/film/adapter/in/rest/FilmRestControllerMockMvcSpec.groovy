@@ -18,6 +18,9 @@ import org.spockframework.spring.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.web.servlet.MockMvc
 import spock.lang.Specification
 
@@ -60,17 +63,22 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
         .andExpect(hasStandardApiResponseFields("${PATH}/${id}", OK))
   }
 
-  def "getFilms returns INTERNAL_SERVER_ERROR"() {
+  def "getFilms returns OK"() {
+    given: "a mocked use case returning an empty page"
+    useCases.getFilms(_ as Pageable) >> new PageImpl<>([], PageRequest.of(0, 10), 0)
+
     when: "getFilms is requested"
     def result = mockMvc.perform(
         get(PATH)
         .accept(APPLICATION_JSON)
         )
 
-    then: "response is INTERNAL_SERVER_ERROR"
+    then: "response is OK"
     result
-        .andExpect(hasStandardApiResponseFields(PATH, INTERNAL_SERVER_ERROR))
-        .andExpect(hasErrorFields(INTERNAL_SERVER_ERROR))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields(PATH, OK))
+        .andExpect(hasPageFields())
   }
 
   def "createFilm returns INTERNAL_SERVER_ERROR"() {
