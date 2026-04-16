@@ -26,5 +26,9 @@ gradle-app.setting
 # Kotlin
 .kotlin/
 
+# Build artifacts
+bin/
+.factorypath
+
 # opencode
 .opencode
