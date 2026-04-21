@@ -1,9 +1,8 @@
-package dev.pollito.spring_java.common.util;
+package dev.pollito.spring_java.config.enums;
 
-import static dev.pollito.spring_java.common.util.EnumUtils.fromValue;
+import static dev.pollito.spring_java.config.enums.EnumUtils.fromValue;
 import static org.junit.jupiter.api.Assertions.*;
 
-import dev.pollito.spring_java.common.ValuedEnum;
 import org.junit.jupiter.api.Test;
 
 class EnumUtilsTest {

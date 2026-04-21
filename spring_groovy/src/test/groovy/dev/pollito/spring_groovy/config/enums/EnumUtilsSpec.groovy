@@ -1,6 +1,6 @@
-package dev.pollito.spring_groovy.common.util
+package dev.pollito.spring_groovy.config.enums
 
-import dev.pollito.spring_groovy.common.ValuedEnum
+import dev.pollito.spring_groovy.config.enums.ValuedEnum
 import spock.lang.Specification
 
 class EnumUtilsSpec extends Specification {

@@ -1,6 +1,5 @@
-package dev.pollito.spring_kotlin.common.util
+package dev.pollito.spring_kotlin.config.enums
 
-import dev.pollito.spring_kotlin.common.ValuedEnum
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

@@ -1,6 +1,6 @@
 package dev.pollito.spring_groovy.sakila.film.domain.model
 
-import dev.pollito.spring_groovy.common.ValuedEnum
+import dev.pollito.spring_groovy.config.enums.ValuedEnum
 import groovy.transform.CompileStatic
 
 @CompileStatic

@@ -1,6 +1,5 @@
-package dev.pollito.spring_java.common.util;
+package dev.pollito.spring_java.config.enums;
 
-import dev.pollito.spring_java.common.ValuedEnum;
 import org.jspecify.annotations.NonNull;
 
 public final class EnumUtils {

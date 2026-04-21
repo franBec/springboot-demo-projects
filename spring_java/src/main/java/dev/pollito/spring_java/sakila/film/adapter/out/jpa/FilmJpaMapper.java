@@ -2,7 +2,7 @@ package dev.pollito.spring_java.sakila.film.adapter.out.jpa;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
-import dev.pollito.spring_java.common.util.EnumUtils;
+import dev.pollito.spring_java.config.enums.EnumUtils;
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
 import dev.pollito.spring_java.sakila.film.domain.model.FilmLanguage;
 import dev.pollito.spring_java.sakila.film.domain.model.FilmRating;

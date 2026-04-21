@@ -1,6 +1,4 @@
-package dev.pollito.spring_kotlin.common.util
-
-import dev.pollito.spring_kotlin.common.ValuedEnum
+package dev.pollito.spring_kotlin.config.enums
 
 object EnumUtils {
   fun <E> fromValue(enumClass: Class<E>, value: Any): E where E : Enum<E>, E : ValuedEnum<*> {

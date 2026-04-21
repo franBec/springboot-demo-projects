@@ -1,6 +1,6 @@
 package dev.pollito.spring_kotlin.sakila.film.adapter.out.jpa
 
-import dev.pollito.spring_kotlin.common.util.EnumUtils
+import dev.pollito.spring_kotlin.config.enums.EnumUtils
 import dev.pollito.spring_kotlin.sakila.film.domain.model.Film
 import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmLanguage
 import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmRating
