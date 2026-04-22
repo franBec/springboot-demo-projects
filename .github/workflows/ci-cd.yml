@@ -6,10 +6,12 @@ on:
     branches: [main]
     paths-ignore:
       - '**/*.md'
+      - '.opencode/**'
   pull_request:
     branches: [main]
     paths-ignore:
       - '**/*.md'
+      - '.opencode/**'
 
 concurrency:
   group: deploy-main

@@ -30,5 +30,3 @@ gradle-app.setting
 bin/
 .factorypath
 
-# opencode
-.opencode
