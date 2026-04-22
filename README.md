@@ -32,9 +32,7 @@ This repository implements some use cases from the [Sakila Sample Database](http
     * [Webhooks & Callbacks](#webhooks--callbacks)
   * [Testing](#testing)
     * [What to Test](#what-to-test)
-    * [Naming](#naming)
     * [SQL Test Data](#sql-test-data)
-    * [Exclusions From Coverage](#exclusions-from-coverage)
   * [Contribution](#contribution)
 <!-- TOC -->
 
@@ -129,8 +127,8 @@ Notable deviations include:
 
 1. **Framework Coupling in the Domain (Spring DI):** In a pure Hexagonal Architecture, the domain layer should have absolutely zero dependencies on external frameworks. In this codebase, domain implementations (e.g., `{Entity}UseCasesImpl`) are annotated with Spring's `@Service`. We rely on Spring Boot's Dependency Injection rather than wiring pure Java/Kotlin/Groovy objects manually in external configuration classes. This introduces a slight framework coupling in exchange for significant developer convenience and boilerplate reduction.
 2. **Relaxed Interface Segregation Principle (ISP):** Strict adherence to ISP in Hexagonal Architecture often leads to highly granular, single-method use cases (e.g., `FindFilmUseCase`, `CreateFilmUseCase`, `UpdateFilmUseCase`). Instead, this project groups related operations into cohesive inbound and outbound ports (e.g., a single `{Entity}UseCases` interface and a single `{Entity}Repository` interface). While this relaxes strict ISP, it heavily reduces file clutter and cognitive load, which is preferable for standard CRUD-heavy and moderate-complexity domains.
-
-You will see this philosophy reflected in the directory layout, clearly separated into `domain/` (models, ports, services) and `adapter/` (inbound REST, outbound JPA).
+3. **Shared Domain Model for Read and Write Operations:** In a strict Hexagonal Architecture, read and write operations often use separate models (e.g., a dedicated `FilmFields` domain object for Create/Update, distinct from the `Film` entity). This project reuses the same domain class (`Film`) for both read and write paths, making nullable fields like `id` and `lastUpdate` acceptable during creation. This reduces boilerplate and mapping complexity at the cost of a less semantically precise domain model.
+4. **`Page` Abstraction Leaking Across Layers:** In a pure Hexagonal Architecture, pagination should be abstracted behind a domain-specific type to avoid coupling the domain layer to framework-specific classes. This project uses `org.springframework.data.domain.Page` directly in the domain layer ports and services, letting it propagate from the JPA adapter all the way up to the REST controllers. Re-implementing a custom `Page` wrapper for each layer would add significant boilerplate with no meaningful gain for standard CRUD operations.
 
 ## Codebase Structure
 
