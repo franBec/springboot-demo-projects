@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)
 public class Film {
-  @NonNull Integer id;
+  Integer id;
   @NonNull String title;
   String description;
   Integer releaseYear;
@@ -26,5 +26,5 @@ public class Film {
   @NonNull BigDecimal rentalRate;
   @NonNull BigDecimal replacementCost;
   String specialFeatures;
-  @NonNull OffsetDateTime lastUpdate;
+  OffsetDateTime lastUpdate;
 }

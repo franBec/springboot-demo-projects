@@ -4,7 +4,7 @@ import java.math.BigDecimal
 import java.time.OffsetDateTime
 
 data class Film(
-    val id: Int,
+    val id: Int?,
     val title: String,
     val description: String?,
     val releaseYear: Int?,
@@ -16,5 +16,5 @@ data class Film(
     val rentalRate: BigDecimal,
     val replacementCost: BigDecimal,
     val specialFeatures: String?,
-    val lastUpdate: OffsetDateTime,
+    val lastUpdate: OffsetDateTime?,
 )
