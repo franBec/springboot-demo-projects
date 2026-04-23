@@ -430,7 +430,7 @@ None yet
 - OpenAPI generated code: `**/generated/**`, `**/openapitools/**`
 - Application entry points: `**/*Application*`
 - Domain models (POJOs): `**/domain/model/**`
-- Mappers: `**/*MapperImpl*` for Java/Kotlin MapStruct, `**/config/mapper/**` for Groovy ModelMapper
+- Groovy ModelMapper:`**/config/mapper/**` 
 - Groovy internals: `**/*$*_closure*`, `**/*__*$*`
 
 | Category               | Java                                             | Kotlin                                                       | Groovy                                           |

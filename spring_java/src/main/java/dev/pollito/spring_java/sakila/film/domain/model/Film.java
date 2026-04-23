@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 import org.jspecify.annotations.NonNull;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)

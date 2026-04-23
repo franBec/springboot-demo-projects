@@ -39,13 +39,11 @@ class FilmJpaMapper {
           replacementCost: source.replacementCost,
           specialFeatures: source.specialFeatures,
           rating: source.rating != null ? EnumUtils.fromValue(FilmRating, source.rating) : null,
-          language: source.languageByLanguageId?.name != null
-          ? EnumUtils.fromValue(FilmLanguage, source.languageByLanguageId.name)
-          : null,
+          language: EnumUtils.fromValue(FilmLanguage, source.languageByLanguageId.name),
           originalLanguage: source.languageByOriginalLanguageId?.name != null
           ? EnumUtils.fromValue(FilmLanguage, source.languageByOriginalLanguageId.name)
           : null,
-          lastUpdate: source.lastUpdate?.atOffset(ZoneOffset.UTC)
+          lastUpdate: source.lastUpdate.atOffset(ZoneOffset.UTC)
           )
     }
   }

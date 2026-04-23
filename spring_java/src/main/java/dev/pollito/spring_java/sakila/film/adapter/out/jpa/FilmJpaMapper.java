@@ -28,7 +28,7 @@ public interface FilmJpaMapper {
   @Mapping(
       target = "language",
       expression =
-          "java(source.getLanguageByLanguageId() != null && source.getLanguageByLanguageId().getName() != null ? EnumUtils.fromValue(FilmLanguage.class, source.getLanguageByLanguageId().getName()) : null)")
+          "java(EnumUtils.fromValue(FilmLanguage.class, source.getLanguageByLanguageId().getName()))")
   @Mapping(
       target = "originalLanguage",
       expression =
@@ -43,8 +43,7 @@ public interface FilmJpaMapper {
           "java(source.getRating() != null ? EnumUtils.fromValue(FilmRating.class, source.getRating()) : null)")
   @Mapping(
       target = "lastUpdate",
-      expression =
-          "java(source.getLastUpdate() != null ? source.getLastUpdate().atOffset(ZoneOffset.UTC) : null)")
+      expression = "java(source.getLastUpdate().atOffset(ZoneOffset.UTC))")
   Film map(dev.pollito.spring_java.sakila.generated.entity.Film source);
 
   default Page<Film> map(

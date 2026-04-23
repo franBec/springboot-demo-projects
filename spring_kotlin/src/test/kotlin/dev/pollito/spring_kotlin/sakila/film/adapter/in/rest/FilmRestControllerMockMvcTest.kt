@@ -3,23 +3,32 @@ package dev.pollito.spring_kotlin.sakila.film.adapter.`in`.rest
 import com.ninjasquad.springmockk.MockkBean
 import dev.pollito.spring_kotlin.config.web.ControllerAdvice
 import dev.pollito.spring_kotlin.sakila.film.domain.model.Film
+import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmLanguage
+import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmRating
 import dev.pollito.spring_kotlin.sakila.film.domain.port.`in`.FilmUseCases
 import dev.pollito.spring_kotlin.test.util.hasErrorFields
 import dev.pollito.spring_kotlin.test.util.hasPageFields
 import dev.pollito.spring_kotlin.test.util.hasStandardApiResponseFields
 import io.mockk.every
-import io.mockk.mockk
-import java.time.OffsetDateTime.now
+import java.math.BigDecimal
+import java.time.OffsetDateTime
 import kotlin.test.Test
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.MockMvcResultMatchersDsl
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -40,79 +49,196 @@ class FilmRestControllerMockMvcTest {
                 "replacementCost": 20.99
             }
         """
+
+    @JvmStatic fun allFilmRatings(): List<FilmRating> = FilmRating.entries
+
+    @JvmStatic fun allFilmLanguages(): List<FilmLanguage> = FilmLanguage.entries
+
+    @JvmStatic
+    fun getFilmsScenarios(): List<Page<Film>> =
+        listOf(
+            PageImpl(listOf(sampleFilm(1)), PageRequest.of(0, 10), 1),
+            PageImpl(emptyList(), PageRequest.of(0, 10), 0),
+        )
+
+    private fun sampleFilm(id: Int? = null): Film =
+        Film(
+            id = id,
+            title = "ACADEMY DINOSAUR",
+            description =
+                "A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies",
+            releaseYear = 2006,
+            rating = FilmRating.PG,
+            length = 86,
+            language = FilmLanguage.ENGLISH,
+            originalLanguage = null,
+            rentalDuration = 6,
+            rentalRate = BigDecimal.valueOf(0.99),
+            replacementCost = BigDecimal.valueOf(20.99),
+            specialFeatures = "Deleted Scenes,Behind the Scenes",
+            lastUpdate = OffsetDateTime.parse("2006-02-15T05:03:42Z"),
+        )
   }
 
   @MockkBean private lateinit var useCases: FilmUseCases
   @Autowired private lateinit var mockMvc: MockMvc
 
-  @Test
-  fun `getFilm returns OK`() {
-    val filmId = 1
-    val film = mockk<Film>(relaxed = true)
-    every { film.lastUpdate } returns now()
-    every { useCases.getFilm(filmId) } returns film
+  @Nested
+  @DisplayName("GET /films/{id}")
+  inner class GetFilm {
 
-    mockMvc
-        .get("$PATH/$filmId") { accept = APPLICATION_JSON }
-        .andExpect {
-          status { isOk() }
-          hasStandardApiResponseFields("$PATH/$filmId", OK)
-        }
+    @Test
+    fun `returns OK`() {
+      val filmId = 1
+      val film = sampleFilm(filmId)
+      every { useCases.getFilm(filmId) } returns film
+
+      mockMvc
+          .get("$PATH/$filmId") { accept = APPLICATION_JSON }
+          .andExpect {
+            status { isOk() }
+            content { contentType(APPLICATION_JSON) }
+            hasStandardApiResponseFields("$PATH/$filmId", OK)
+            hasFilmFields("$.data")
+          }
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "dev.pollito.spring_kotlin.sakila.film.adapter.in.rest.FilmRestControllerMockMvcTest#allFilmRatings"
+    )
+    fun `maps all ratings`(rating: FilmRating) {
+      val film = sampleFilm(1).copy(rating = rating)
+      every { useCases.getFilm(1) } returns film
+
+      mockMvc
+          .get("$PATH/1") { accept = APPLICATION_JSON }
+          .andExpect {
+            status { isOk() }
+            jsonPath("$.data.rating") { value(rating.getValue()) }
+          }
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "dev.pollito.spring_kotlin.sakila.film.adapter.in.rest.FilmRestControllerMockMvcTest#allFilmLanguages"
+    )
+    fun `maps all languages`(language: FilmLanguage) {
+      val film = sampleFilm(1).copy(language = language)
+      every { useCases.getFilm(1) } returns film
+
+      mockMvc
+          .get("$PATH/1") { accept = APPLICATION_JSON }
+          .andExpect {
+            status { isOk() }
+            jsonPath("$.data.language") { value(language.getValue()) }
+          }
+    }
   }
 
-  @Test
-  fun `getFilms returns OK`() {
-    every { useCases.getFilms(any()) } returns PageImpl(emptyList(), PageRequest.of(0, 10), 0)
+  @Nested
+  @DisplayName("GET /films")
+  inner class GetFilms {
 
-    mockMvc
-        .get(PATH) { accept = APPLICATION_JSON }
-        .andExpect {
-          status { isOk() }
-          hasStandardApiResponseFields(PATH, OK)
-          hasPageFields()
-        }
+    @ParameterizedTest
+    @MethodSource(
+        "dev.pollito.spring_kotlin.sakila.film.adapter.in.rest.FilmRestControllerMockMvcTest#getFilmsScenarios"
+    )
+    fun `returns OK`(page: Page<Film>) {
+      every { useCases.getFilms(any<Pageable>()) } returns page
+
+      val actions =
+          mockMvc
+              .get(PATH) { accept = APPLICATION_JSON }
+              .andExpect {
+                status { isOk() }
+                content { contentType(APPLICATION_JSON) }
+                hasStandardApiResponseFields(PATH, OK)
+                hasPageFields()
+                jsonPath("$.data.totalElements") { value(page.totalElements) }
+                jsonPath("$.data.totalPages") { value(page.totalPages) }
+              }
+
+      if (page.hasContent()) {
+        actions.andExpect { hasFilmFields("$.data.content[0]") }
+      }
+    }
   }
 
-  @Test
-  fun `createFilm returns INTERNAL_SERVER_ERROR`() {
-    mockMvc
-        .post(PATH) {
-          contentType = APPLICATION_JSON
-          content = CONTENT_BODY
-          accept = APPLICATION_JSON
-        }
-        .andExpect {
-          status { isInternalServerError() }
-          hasStandardApiResponseFields(PATH, INTERNAL_SERVER_ERROR)
-          hasErrorFields(INTERNAL_SERVER_ERROR)
-        }
+  @Nested
+  @DisplayName("POST /films")
+  inner class CreateFilm {
+
+    @Test
+    fun `returns INTERNAL_SERVER_ERROR`() {
+      mockMvc
+          .post(PATH) {
+            contentType = APPLICATION_JSON
+            content = CONTENT_BODY
+            accept = APPLICATION_JSON
+          }
+          .andExpect {
+            status { isInternalServerError() }
+            hasStandardApiResponseFields(PATH, INTERNAL_SERVER_ERROR)
+            hasErrorFields(INTERNAL_SERVER_ERROR)
+          }
+    }
   }
 
-  @Test
-  fun `deleteFilm returns INTERNAL_SERVER_ERROR`() {
-    val filmId = 1
-    mockMvc
-        .delete("$PATH/$filmId") { accept = APPLICATION_JSON }
-        .andExpect {
-          status { isInternalServerError() }
-          hasStandardApiResponseFields("$PATH/$filmId", INTERNAL_SERVER_ERROR)
-          hasErrorFields(INTERNAL_SERVER_ERROR)
-        }
+  @Nested
+  @DisplayName("DELETE /films/{id}")
+  inner class DeleteFilm {
+
+    @Test
+    fun `returns INTERNAL_SERVER_ERROR`() {
+      val filmId = 1
+      mockMvc
+          .delete("$PATH/$filmId") { accept = APPLICATION_JSON }
+          .andExpect {
+            status { isInternalServerError() }
+            hasStandardApiResponseFields("$PATH/$filmId", INTERNAL_SERVER_ERROR)
+            hasErrorFields(INTERNAL_SERVER_ERROR)
+          }
+    }
   }
 
-  @Test
-  fun `updateFilm returns INTERNAL_SERVER_ERROR`() {
-    val filmId = 1
-    mockMvc
-        .put("$PATH/$filmId") {
-          contentType = APPLICATION_JSON
-          content = CONTENT_BODY
-          accept = APPLICATION_JSON
-        }
-        .andExpect {
-          status { isInternalServerError() }
-          hasStandardApiResponseFields("$PATH/$filmId", INTERNAL_SERVER_ERROR)
-          hasErrorFields(INTERNAL_SERVER_ERROR)
-        }
+  @Nested
+  @DisplayName("PUT /films/{id}")
+  inner class UpdateFilm {
+
+    @Test
+    fun `returns INTERNAL_SERVER_ERROR`() {
+      val filmId = 1
+      mockMvc
+          .put("$PATH/$filmId") {
+            contentType = APPLICATION_JSON
+            content = CONTENT_BODY
+            accept = APPLICATION_JSON
+          }
+          .andExpect {
+            status { isInternalServerError() }
+            hasStandardApiResponseFields("$PATH/$filmId", INTERNAL_SERVER_ERROR)
+            hasErrorFields(INTERNAL_SERVER_ERROR)
+          }
+    }
+  }
+
+  private fun MockMvcResultMatchersDsl.hasFilmFields(prefix: String) {
+    jsonPath("$prefix.id") { value(1) }
+    jsonPath("$prefix.title") { value("ACADEMY DINOSAUR") }
+    jsonPath("$prefix.description") {
+      value(
+          "A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies"
+      )
+    }
+    jsonPath("$prefix.releaseYear") { value(2006) }
+    jsonPath("$prefix.rating") { value("PG") }
+    jsonPath("$prefix.length") { value(86) }
+    jsonPath("$prefix.language") { value("English") }
+    jsonPath("$prefix.rentalDuration") { value(6) }
+    jsonPath("$prefix.rentalRate") { value(0.99) }
+    jsonPath("$prefix.replacementCost") { value(20.99) }
+    jsonPath("$prefix.specialFeatures") { value("Deleted Scenes,Behind the Scenes") }
+    jsonPath("$prefix.lastUpdate") { value("2006-02-15T05:03:42Z") }
   }
 }

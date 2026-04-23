@@ -36,6 +36,7 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+  testImplementation("org.junit.jupiter:junit-jupiter-params")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
   val mapstructVersion = "1.7.0.Beta1"
@@ -93,6 +94,8 @@ tasks.jacocoTestReport {
     html.required.set(true)
   }
 
+  sourceDirectories.from(layout.buildDirectory.dir("generated/source/kapt/main"))
+
   classDirectories.setFrom(
       files(
           classDirectories.files.map {
@@ -110,9 +113,6 @@ tasks.jacocoTestReport {
 
                   // Domain models (POJOs)
                   "**/domain/model/**",
-
-                  // MapStruct
-                  "**/*MapperImpl*",
               )
             }
           }

@@ -81,6 +81,10 @@ jacocoTestReport {
     html.required = true
   }
 
+  sourceDirectories.from(
+      layout.buildDirectory.dir("generated/sources/annotationProcessor/java/main")
+      )
+
   classDirectories.setFrom(
       files(classDirectories.files.collect {
         fileTree(it) {
@@ -97,9 +101,6 @@ jacocoTestReport {
 
               // Log
               '**/log/**',
-
-              // MapStruct
-              '**/*MapperImpl*',
               )
         }
       })
