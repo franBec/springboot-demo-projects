@@ -4,6 +4,7 @@ import dev.pollito.spring_kotlin.config.enums.EnumUtils
 import dev.pollito.spring_kotlin.sakila.film.domain.model.Film
 import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmLanguage
 import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmRating
+import dev.pollito.spring_kotlin.sakila.generated.entity.Language
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import org.mapstruct.Mapper
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page
             FilmRating::class,
             OffsetDateTime::class,
             ZoneOffset::class,
+            Language::class,
         ],
 )
 interface FilmJpaMapper {
@@ -50,6 +52,28 @@ interface FilmJpaMapper {
       expression = "java(source.getLastUpdate().atOffset(ZoneOffset.UTC))",
   )
   fun map(source: dev.pollito.spring_kotlin.sakila.generated.entity.Film): Film
+
+  @Mapping(target = "filmId", ignore = true)
+  @Mapping(target = "lastUpdate", ignore = true)
+  @Mapping(target = "languageByLanguageId", source = "language")
+  @Mapping(target = "languageByOriginalLanguageId", source = "originalLanguage")
+  @Mapping(target = "inventories", ignore = true)
+  @Mapping(target = "filmCategories", ignore = true)
+  @Mapping(target = "filmActors", ignore = true)
+  @Mapping(
+      target = "releaseYear",
+      expression =
+          "java(source.getReleaseYear() != null ? java.time.LocalDate.of(source.getReleaseYear(), 1, 1) : null)",
+  )
+  @Mapping(
+      target = "rating",
+      expression = "java(source.getRating() != null ? source.getRating().getValue() : null)",
+  )
+  fun map(
+      source: Film,
+      language: Language,
+      originalLanguage: Language?,
+  ): dev.pollito.spring_kotlin.sakila.generated.entity.Film
 
   fun map(source: Page<dev.pollito.spring_kotlin.sakila.generated.entity.Film>): Page<Film> =
       source.map { map(it) }

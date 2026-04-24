@@ -1,8 +1,10 @@
 package dev.pollito.spring_groovy.sakila.film.adapter.in.rest
 
 import static java.time.OffsetDateTime.now
+import static org.springframework.http.HttpStatus.CREATED
 import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.ResponseEntity.ok
+import static org.springframework.http.ResponseEntity.status
 
 import dev.pollito.spring_groovy.sakila.film.domain.port.in.FilmUseCases
 import dev.pollito.spring_groovy.sakila.generated.api.FilmsApi
@@ -31,7 +33,15 @@ class FilmRestController implements FilmsApi {
 
   @Override
   ResponseEntity<FilmResponse> createFilm(FilmFields filmFields) {
-    throw new RuntimeException("Not implemented")
+    status(CREATED)
+        .body(
+        new FilmResponse()
+        .data(mapper.map(useCases.createFilm(mapper.map(filmFields))))
+        .instance(request.requestURI)
+        .timestamp(now())
+        .trace(Span.current().spanContext.traceId)
+        .status(CREATED.value())
+        )
   }
 
   @Override

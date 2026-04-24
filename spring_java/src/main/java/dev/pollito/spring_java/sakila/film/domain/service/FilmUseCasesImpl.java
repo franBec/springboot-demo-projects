@@ -14,6 +14,11 @@ public class FilmUseCasesImpl implements FilmUseCases {
   private final FilmRepository repository;
 
   @Override
+  public Film createFilm(Film film) {
+    return repository.createFilm(film);
+  }
+
+  @Override
   public Film getFilm(Integer id) {
     return repository.getFilm(id);
   }

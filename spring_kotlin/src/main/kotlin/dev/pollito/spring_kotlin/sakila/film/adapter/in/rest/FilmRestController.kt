@@ -9,9 +9,11 @@ import io.opentelemetry.api.trace.Span.current
 import jakarta.servlet.http.HttpServletRequest
 import java.time.OffsetDateTime.now
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
+import org.springframework.http.ResponseEntity.status
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -22,7 +24,16 @@ class FilmRestController(
 ) : FilmsApi {
 
   override fun createFilm(filmFields: FilmFields): ResponseEntity<FilmResponse> {
-    throw RuntimeException("Not implemented")
+    return status(CREATED)
+        .body(
+            FilmResponse(
+                data = mapper.map(useCases.createFilm(mapper.map(filmFields))),
+                instance = request.requestURI,
+                timestamp = now(),
+                trace = current().spanContext.traceId,
+                status = CREATED.value(),
+            )
+        )
   }
 
   override fun deleteFilm(id: Int): ResponseEntity<Unit> {

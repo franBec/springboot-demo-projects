@@ -5,47 +5,62 @@ import dev.pollito.spring_groovy.sakila.film.domain.model.Film
 import dev.pollito.spring_groovy.sakila.film.domain.model.FilmLanguage
 import dev.pollito.spring_groovy.sakila.film.domain.model.FilmRating
 import dev.pollito.spring_groovy.sakila.generated.entity.Film as GeneratedFilm
-import groovy.transform.CompileStatic
+import dev.pollito.spring_groovy.sakila.generated.entity.Language
+import java.time.LocalDate
 import java.time.ZoneOffset
 import org.modelmapper.ModelMapper
-import org.modelmapper.TypeMap
-import org.modelmapper.spi.MappingContext
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 
 @Component
-@CompileStatic
 class FilmJpaMapper {
   private final ModelMapper mapper
-  private TypeMap<GeneratedFilm, Film> typeMap
+  private static final List<String> TRIVIAL_FIELDS = [
+    'title',
+    'description',
+    'length',
+    'rentalDuration',
+    'rentalRate',
+    'replacementCost',
+    'specialFeatures'
+  ]
 
   FilmJpaMapper(ModelMapper mapper) {
     this.mapper = mapper
-    configureTypeMap()
+    configureTypeMaps()
   }
 
-  private void configureTypeMap() {
-    typeMap = mapper.createTypeMap(GeneratedFilm, Film)
-    typeMap.setConverter { MappingContext<GeneratedFilm, Film> ctx ->
-      GeneratedFilm source = ctx.source
-      new Film(
-          id: source.filmId,
-          title: source.title,
-          description: source.description,
-          releaseYear: source.releaseYear?.year,
-          length: source.length,
-          rentalDuration: source.rentalDuration,
-          rentalRate: source.rentalRate,
-          replacementCost: source.replacementCost,
-          specialFeatures: source.specialFeatures,
-          rating: source.rating != null ? EnumUtils.fromValue(FilmRating, source.rating) : null,
-          language: EnumUtils.fromValue(FilmLanguage, source.languageByLanguageId.name),
-          originalLanguage: source.languageByOriginalLanguageId?.name != null
-          ? EnumUtils.fromValue(FilmLanguage, source.languageByOriginalLanguageId.name)
-          : null,
-          lastUpdate: source.lastUpdate.atOffset(ZoneOffset.UTC)
-          )
+  private void configureTypeMaps() {
+    mapper.createTypeMap(GeneratedFilm, Film).setConverter { ctx ->
+      def s = ctx.source
+      def d = new Film()
+      TRIVIAL_FIELDS.each { d[it] = s[it] }
+      d.id = s.filmId
+      d.releaseYear = s.releaseYear?.year
+      d.rating = s.rating ? EnumUtils.fromValue(FilmRating, s.rating) : null
+      d.language = EnumUtils.fromValue(FilmLanguage, s.languageByLanguageId.name)
+      d.originalLanguage = s.languageByOriginalLanguageId?.name
+          ? EnumUtils.fromValue(FilmLanguage, s.languageByOriginalLanguageId.name)
+          : null
+      d.lastUpdate = s.lastUpdate?.atOffset(ZoneOffset.UTC)
+      d
     }
+
+    mapper.createTypeMap(Film, GeneratedFilm).setConverter { ctx ->
+      def s = ctx.source
+      def d = new GeneratedFilm()
+      TRIVIAL_FIELDS.each { d[it] = s[it] }
+      d.releaseYear = s.releaseYear ? LocalDate.of(s.releaseYear, 1, 1) : null
+      d.rating = s.rating?.value
+      d
+    }
+  }
+
+  GeneratedFilm map(Film source, Language language, Language originalLanguage) {
+    def entity = mapper.map(source, GeneratedFilm)
+    entity.languageByLanguageId = language
+    entity.languageByOriginalLanguageId = originalLanguage
+    entity
   }
 
   Film map(GeneratedFilm source) {
@@ -53,6 +68,6 @@ class FilmJpaMapper {
   }
 
   Page<Film> map(Page<GeneratedFilm> source) {
-    source.map {  it -> map(it) }
+    source.map { map(it) }
   }
 }

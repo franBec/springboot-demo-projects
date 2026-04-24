@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -39,16 +40,17 @@ import org.springframework.test.web.servlet.put
 class FilmRestControllerMockMvcTest {
   companion object {
     private const val PATH = "/api/films"
-    private const val CONTENT_BODY =
-        """
-            {
-                "title": "ACADEMY DINOSAUR",
-                "language": "English",
-                "rentalDuration": 3,
-                "rentalRate": 4.99,
-                "replacementCost": 20.99
-            }
-        """
+
+    private fun contentBody(): String = contentBody("English", null)
+
+    private fun contentBody(language: String, rating: String?): String {
+      var body =
+          "{\"title\":\"ACADEMY DINOSAUR\",\"language\":\"$language\",\"rentalDuration\":3,\"rentalRate\":4.99,\"replacementCost\":20.99"
+      if (rating != null) {
+        body += ",\"rating\":\"$rating\""
+      }
+      return "$body}"
+    }
 
     @JvmStatic fun allFilmRatings(): List<FilmRating> = FilmRating.entries
 
@@ -170,17 +172,60 @@ class FilmRestControllerMockMvcTest {
   inner class CreateFilm {
 
     @Test
-    fun `returns INTERNAL_SERVER_ERROR`() {
+    fun `returns CREATED`() {
+      every { useCases.createFilm(any()) } returns sampleFilm(1)
+
       mockMvc
           .post(PATH) {
             contentType = APPLICATION_JSON
-            content = CONTENT_BODY
+            content = contentBody()
             accept = APPLICATION_JSON
           }
           .andExpect {
-            status { isInternalServerError() }
-            hasStandardApiResponseFields(PATH, INTERNAL_SERVER_ERROR)
-            hasErrorFields(INTERNAL_SERVER_ERROR)
+            status { isCreated() }
+            content { contentType(APPLICATION_JSON) }
+            hasStandardApiResponseFields(PATH, CREATED)
+            hasFilmFields("$.data")
+          }
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "dev.pollito.spring_kotlin.sakila.film.adapter.in.rest.FilmRestControllerMockMvcTest#allFilmRatings"
+    )
+    fun `maps all ratings on create`(rating: FilmRating) {
+      every { useCases.createFilm(any()) } returns sampleFilm(1)
+
+      mockMvc
+          .post(PATH) {
+            contentType = APPLICATION_JSON
+            content = contentBody("English", rating.getValue())
+            accept = APPLICATION_JSON
+          }
+          .andExpect {
+            status { isCreated() }
+            content { contentType(APPLICATION_JSON) }
+            hasStandardApiResponseFields(PATH, CREATED)
+          }
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "dev.pollito.spring_kotlin.sakila.film.adapter.in.rest.FilmRestControllerMockMvcTest#allFilmLanguages"
+    )
+    fun `maps all languages on create`(language: FilmLanguage) {
+      every { useCases.createFilm(any()) } returns sampleFilm(1)
+
+      mockMvc
+          .post(PATH) {
+            contentType = APPLICATION_JSON
+            content = contentBody(language.getValue(), null)
+            accept = APPLICATION_JSON
+          }
+          .andExpect {
+            status { isCreated() }
+            content { contentType(APPLICATION_JSON) }
+            hasStandardApiResponseFields(PATH, CREATED)
           }
     }
   }
@@ -212,7 +257,7 @@ class FilmRestControllerMockMvcTest {
       mockMvc
           .put("$PATH/$filmId") {
             contentType = APPLICATION_JSON
-            content = CONTENT_BODY
+            content = contentBody()
             accept = APPLICATION_JSON
           }
           .andExpect {

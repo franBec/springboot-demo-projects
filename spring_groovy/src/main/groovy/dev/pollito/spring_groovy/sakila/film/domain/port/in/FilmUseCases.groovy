@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface FilmUseCases {
+  Film createFilm(Film film)
+
   Film getFilm(Integer id)
 
   Page<Film> getFilms(Pageable pageable)

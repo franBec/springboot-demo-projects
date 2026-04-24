@@ -59,6 +59,10 @@ class FilmRepositoryImplDataJpaTest {
     return Stream.of(Arguments.of(of(0, 10), true), Arguments.of(of(1000, 10), false));
   }
 
+  static @NonNull Stream<Arguments> createFilmScenarios() {
+    return Stream.of(Arguments.of((FilmLanguage) null), Arguments.of(FilmLanguage.FRENCH));
+  }
+
   @Test
   void getFilmReturnsADomainModel() {
     assertEquals(sampleFilm(), repository.getFilm(1));
@@ -80,5 +84,24 @@ class FilmRepositoryImplDataJpaTest {
     } else {
       assertTrue(page.isEmpty());
     }
+  }
+
+  @ParameterizedTest
+  @MethodSource("createFilmScenarios")
+  void createFilmReturnsADomainModel(FilmLanguage originalLanguage) {
+    Film film =
+        Film.builder()
+            .title("NEW FILM")
+            .language(FilmLanguage.ENGLISH)
+            .originalLanguage(originalLanguage)
+            .rentalDuration(3)
+            .rentalRate(BigDecimal.valueOf(4.99))
+            .replacementCost(BigDecimal.valueOf(20.99))
+            .build();
+    Film created = repository.createFilm(film);
+    assertNotNull(created);
+    assertNotNull(created.getId());
+    assertEquals("NEW FILM", created.getTitle());
+    assertEquals(originalLanguage, created.getOriginalLanguage());
   }
 }

@@ -2,8 +2,10 @@ package dev.pollito.spring_java.sakila.film.adapter.in.rest;
 
 import static io.opentelemetry.api.trace.Span.current;
 import static java.time.OffsetDateTime.now;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.status;
 
 import dev.pollito.spring_java.sakila.film.domain.port.in.FilmUseCases;
 import dev.pollito.spring_java.sakila.generated.api.FilmsApi;
@@ -25,7 +27,14 @@ public class FilmRestController implements FilmsApi {
 
   @Override
   public ResponseEntity<FilmResponse> createFilm(FilmFields filmFields) {
-    throw new RuntimeException("Not implemented");
+    return status(CREATED)
+        .body(
+            new FilmResponse()
+                .data(mapper.map(useCases.createFilm(mapper.map(filmFields))))
+                .instance(request.getRequestURI())
+                .timestamp(now())
+                .trace(current().getSpanContext().getTraceId())
+                .status(CREATED.value()));
   }
 
   @Override

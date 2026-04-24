@@ -76,4 +76,26 @@ class FilmRepositoryImplDataJpaSpec extends Specification {
     of(0, 10) | true
     of(1000, 10) | false
   }
+
+  def "createFilm returns a domain model"() {
+    when: "createFilm is called"
+    def film = new Film(
+        title: 'NEW FILM',
+        language: FilmLanguage.ENGLISH,
+        originalLanguage: originalLanguage,
+        rentalDuration: 3,
+        rentalRate: BigDecimal.valueOf(4.99),
+        replacementCost: BigDecimal.valueOf(20.99)
+        )
+    def result = repository.createFilm(film)
+
+    then: "a domain model with an assigned id is returned"
+    result != null
+    result.id != null
+    result.title == 'NEW FILM'
+    result.originalLanguage == originalLanguage
+
+    where:
+    originalLanguage << [null, FilmLanguage.FRENCH]
+  }
 }

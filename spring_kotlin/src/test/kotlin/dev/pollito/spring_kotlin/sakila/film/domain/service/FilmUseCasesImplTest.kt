@@ -18,6 +18,12 @@ class FilmUseCasesImplTest {
   @InjectMockKs private lateinit var useCases: FilmUseCasesImpl
 
   @Test
+  fun `createFilm returns a domain model`() {
+    every { repository.createFilm(any()) } returns mockk()
+    assertNotNull(useCases.createFilm(mockk()))
+  }
+
+  @Test
   fun `getFilm returns a domain model`() {
     every { repository.getFilm(any()) } returns mockk()
     assertNotNull(useCases.getFilm(1))

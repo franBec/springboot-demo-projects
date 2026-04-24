@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class FilmUseCasesImpl(private val repository: FilmRepository) : FilmUseCases {
+  override fun createFilm(film: Film): Film = repository.createFilm(film)
+
   override fun getFilm(id: Int): Film = repository.getFilm(id)
 
   override fun getFilms(pageable: Pageable): Page<Film> = repository.getFilms(pageable)

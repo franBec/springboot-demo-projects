@@ -40,6 +40,13 @@ class FilmRepositoryImplDataJpaTest {
             Arguments.of(PageRequest.of(1000, 10), false),
         )
 
+    @JvmStatic
+    fun createFilmScenarios(): Stream<Arguments> =
+        Stream.of(
+            Arguments.of(null),
+            Arguments.of(FilmLanguage.FRENCH),
+        )
+
     private fun sampleFilm(): Film =
         Film(
             id = 1,
@@ -83,5 +90,31 @@ class FilmRepositoryImplDataJpaTest {
     } else {
       assertTrue(page.isEmpty)
     }
+  }
+
+  @ParameterizedTest
+  @MethodSource("createFilmScenarios")
+  fun `createFilm returns a domain model`(originalLanguage: FilmLanguage?) {
+    val film =
+        Film(
+            id = null,
+            title = "NEW FILM",
+            description = null,
+            releaseYear = null,
+            rating = null,
+            length = null,
+            language = FilmLanguage.ENGLISH,
+            originalLanguage = originalLanguage,
+            rentalDuration = 3,
+            rentalRate = BigDecimal.valueOf(4.99),
+            replacementCost = BigDecimal.valueOf(20.99),
+            specialFeatures = null,
+            lastUpdate = null,
+        )
+    val created = repository.createFilm(film)
+    assertNotNull(created)
+    assertNotNull(created.id)
+    assertEquals("NEW FILM", created.title)
+    assertEquals(originalLanguage, created.originalLanguage)
   }
 }

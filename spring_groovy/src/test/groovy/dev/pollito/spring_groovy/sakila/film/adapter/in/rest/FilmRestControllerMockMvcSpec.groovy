@@ -32,15 +32,17 @@ import spock.lang.Specification
 class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResultMatchersTrait {
 
   private static final String PATH = "/api/films"
-  private static final String CONTENT_BODY = """
-        {
-            "title": "ACADEMY DINOSAUR",
-            "language": "English",
-            "rentalDuration": 3,
-            "rentalRate": 4.99,
-            "replacementCost": 20.99
-        }
-    """
+  private static String contentBody() {
+    contentBody('English', null)
+  }
+
+  private static String contentBody(String language, String rating) {
+    def body = "{\"title\":\"ACADEMY DINOSAUR\",\"language\":\"${language}\",\"rentalDuration\":3,\"rentalRate\":4.99,\"replacementCost\":20.99"
+    if (rating != null) {
+      body += ",\"rating\":\"${rating}\""
+    }
+    "${body}}"
+  }
 
   private static Film sampleFilm(Integer id = null) {
     new Film(
@@ -166,19 +168,68 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
     ]
   }
 
-  def "createFilm returns INTERNAL_SERVER_ERROR"() {
+  def "createFilm returns CREATED"() {
+    given: "a mocked use case returning a film"
+    useCases.createFilm(_ as Film) >> sampleFilm(1)
+
     when: "createFilm is requested"
     def result = mockMvc.perform(
         post(PATH)
         .contentType(APPLICATION_JSON)
-        .content(CONTENT_BODY)
+        .content(contentBody())
         .accept(APPLICATION_JSON)
         )
 
-    then: "response is INTERNAL_SERVER_ERROR"
+    then: "response is CREATED"
     result
-        .andExpect(hasStandardApiResponseFields(PATH, INTERNAL_SERVER_ERROR))
-        .andExpect(hasErrorFields(INTERNAL_SERVER_ERROR))
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields(PATH, CREATED))
+        .andExpect(hasFilmFields('$.data'))
+  }
+
+  def "maps all ratings on create"(FilmRating rating) {
+    given: "a mocked use case returning a film"
+    useCases.createFilm(_ as Film) >> sampleFilm(1)
+
+    when: "createFilm is requested with a specific rating"
+    def result = mockMvc.perform(
+        post(PATH)
+        .contentType(APPLICATION_JSON)
+        .content(contentBody('English', rating.value))
+        .accept(APPLICATION_JSON)
+        )
+
+    then: "response is CREATED"
+    result
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields(PATH, CREATED))
+
+    where:
+    rating << FilmRating.values()
+  }
+
+  def "maps all languages on create"(FilmLanguage language) {
+    given: "a mocked use case returning a film"
+    useCases.createFilm(_ as Film) >> sampleFilm(1)
+
+    when: "createFilm is requested with a specific language"
+    def result = mockMvc.perform(
+        post(PATH)
+        .contentType(APPLICATION_JSON)
+        .content(contentBody(language.value, null))
+        .accept(APPLICATION_JSON)
+        )
+
+    then: "response is CREATED"
+    result
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields(PATH, CREATED))
+
+    where:
+    language << FilmLanguage.values()
   }
 
   def "deleteFilm returns INTERNAL_SERVER_ERROR"() {
@@ -205,7 +256,7 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
     def result = mockMvc.perform(
         put(PATH + "/{id}", id)
         .contentType(APPLICATION_JSON)
-        .content(CONTENT_BODY)
+        .content(contentBody())
         .accept(APPLICATION_JSON)
         )
 

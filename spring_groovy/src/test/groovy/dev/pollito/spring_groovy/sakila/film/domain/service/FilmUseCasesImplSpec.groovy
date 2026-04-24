@@ -12,6 +12,17 @@ class FilmUseCasesImplSpec extends Specification {
   FilmRepository repository = Mock()
   @Subject FilmUseCasesImpl useCases = new FilmUseCasesImpl(repository)
 
+  def "createFilm returns a domain model"() {
+    given: "a mocked repository"
+    repository.createFilm(_ as Film) >> Mock(Film)
+
+    when: "createFilm is called"
+    def result = useCases.createFilm(new Film())
+
+    then: "a domain model is returned"
+    result != null
+  }
+
   def "getFilm returns a domain model"() {
     given: "a mocked repository"
     repository.getFilm(_ as Integer) >> Mock(Film)

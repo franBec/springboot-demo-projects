@@ -24,6 +24,12 @@ class FilmUseCasesImplTest {
   @Mock private FilmRepository repository;
 
   @Test
+  void createFilmReturnsADomainModel() {
+    when(repository.createFilm(any())).thenReturn(mock(Film.class));
+    assertNotNull(useCases.createFilm(mock(Film.class)));
+  }
+
+  @Test
   void getFilmReturnsADomainModel() {
     when(repository.getFilm(anyInt())).thenReturn(mock(Film.class));
     assertNotNull(useCases.getFilm(1));

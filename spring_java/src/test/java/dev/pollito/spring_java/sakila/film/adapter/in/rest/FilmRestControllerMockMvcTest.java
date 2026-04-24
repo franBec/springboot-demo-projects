@@ -5,7 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.domain.PageRequest.of;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,16 +51,6 @@ import org.springframework.test.web.servlet.ResultMatcher;
 class FilmRestControllerMockMvcTest {
 
   private static final String PATH = "/api/films";
-  private static final String CONTENT_BODY =
-      """
-			{
-				"title": "ACADEMY DINOSAUR",
-				"language": "English",
-				"rentalDuration": 3,
-				"rentalRate": 4.99,
-				"replacementCost": 20.99
-			}
-			""";
 
   private static Film sampleFilm(Integer id) {
     return Film.builder()
@@ -77,6 +69,21 @@ class FilmRestControllerMockMvcTest {
         .specialFeatures("Deleted Scenes,Behind the Scenes")
         .lastUpdate(OffsetDateTime.parse("2006-02-15T05:03:42Z"))
         .build();
+  }
+
+  private static String contentBody() {
+    return contentBody("English", null);
+  }
+
+  private static String contentBody(String language, String rating) {
+    String body =
+        "{\"title\":\"ACADEMY DINOSAUR\",\"language\":\""
+            + language
+            + "\",\"rentalDuration\":3,\"rentalRate\":4.99,\"replacementCost\":20.99";
+    if (rating != null) {
+      body += ",\"rating\":\"" + rating + "\"";
+    }
+    return body + "}";
   }
 
   private ResultMatcher hasFilmFields(String prefix) {
@@ -202,16 +209,53 @@ class FilmRestControllerMockMvcTest {
   class CreateFilm {
 
     @Test
-    void returnsInternalServerError() throws Exception {
-      HttpStatus status = INTERNAL_SERVER_ERROR;
+    void returnsCreated() throws Exception {
+      when(filmUseCases.createFilm(any())).thenReturn(sampleFilm(1));
+
       mockMvc
           .perform(
               post(PATH)
                   .contentType(APPLICATION_JSON)
-                  .content(CONTENT_BODY)
+                  .content(contentBody())
                   .accept(APPLICATION_JSON))
-          .andExpect(hasStandardApiResponseFields(PATH, status))
-          .andExpect(hasErrorFields(status));
+          .andExpect(status().isCreated())
+          .andExpect(content().contentType(APPLICATION_JSON))
+          .andExpect(hasStandardApiResponseFields(PATH, CREATED))
+          .andExpect(hasFilmFields("$.data"));
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "dev.pollito.spring_java.sakila.film.adapter.in.rest.FilmRestControllerMockMvcTest#allFilmRatings")
+    void mapsAllRatingsOnCreate(@NonNull FilmRating rating) throws Exception {
+      when(filmUseCases.createFilm(any())).thenReturn(sampleFilm(1));
+
+      mockMvc
+          .perform(
+              post(PATH)
+                  .contentType(APPLICATION_JSON)
+                  .content(contentBody("English", rating.getValue()))
+                  .accept(APPLICATION_JSON))
+          .andExpect(status().isCreated())
+          .andExpect(content().contentType(APPLICATION_JSON))
+          .andExpect(hasStandardApiResponseFields(PATH, CREATED));
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "dev.pollito.spring_java.sakila.film.adapter.in.rest.FilmRestControllerMockMvcTest#allFilmLanguages")
+    void mapsAllLanguagesOnCreate(@NonNull FilmLanguage language) throws Exception {
+      when(filmUseCases.createFilm(any())).thenReturn(sampleFilm(1));
+
+      mockMvc
+          .perform(
+              post(PATH)
+                  .contentType(APPLICATION_JSON)
+                  .content(contentBody(language.getValue(), null))
+                  .accept(APPLICATION_JSON))
+          .andExpect(status().isCreated())
+          .andExpect(content().contentType(APPLICATION_JSON))
+          .andExpect(hasStandardApiResponseFields(PATH, CREATED));
     }
   }
 
@@ -242,7 +286,7 @@ class FilmRestControllerMockMvcTest {
           .perform(
               put(PATH + "/{id}", filmId)
                   .contentType(APPLICATION_JSON)
-                  .content(CONTENT_BODY)
+                  .content(contentBody())
                   .accept(APPLICATION_JSON))
           .andExpect(hasStandardApiResponseFields(PATH + "/" + filmId, status))
           .andExpect(hasErrorFields(status));
