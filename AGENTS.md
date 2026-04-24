@@ -18,3 +18,4 @@ More information can be found in `README.md`
 
 - The environment is running **BusyBox**, which provides a lightweight version of common Unix tools.
 - The `pgrep` command is a "stripped down" version and **does not support the `-g` flag**.
+- **Lombok LSP errors**: Errors like `builder()` or `toBuilder() undefined` in entities/DTOs are **known LSP false positives** caused by Lombok not being fully configured in the language server. They existed before any changes and do **not** indicate real issues. The project compiles fine via Gradle, so **Gradle build success is the source of truth**.
