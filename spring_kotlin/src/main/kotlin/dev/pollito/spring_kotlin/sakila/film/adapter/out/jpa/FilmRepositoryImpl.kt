@@ -28,4 +28,17 @@ class FilmRepositoryImpl(
   override fun getFilm(id: Int): Film = mapper.map(repository.findById(id).orElseThrow())
 
   override fun getFilms(pageable: Pageable): Page<Film> = mapper.map(repository.findAll(pageable))
+
+  override fun updateFilm(id: Int, film: Film): Film {
+    val language =
+        languageJpaRepository.findByName(film.language.getValue()) ?: throw NoSuchElementException()
+    val originalLanguage =
+        film.originalLanguage?.let {
+          languageJpaRepository.findByName(it.getValue()) ?: throw NoSuchElementException()
+        }
+    val entity = mapper.map(film, language, originalLanguage)
+    entity.filmId = id
+    entity.lastUpdate = now()
+    return mapper.map(repository.save(entity))
+  }
 }

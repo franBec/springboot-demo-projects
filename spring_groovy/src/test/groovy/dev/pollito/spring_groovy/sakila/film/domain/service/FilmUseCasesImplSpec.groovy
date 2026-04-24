@@ -44,4 +44,15 @@ class FilmUseCasesImplSpec extends Specification {
     then: "a page is returned"
     result != null
   }
+
+  def "updateFilm returns a domain model"() {
+    given: "a mocked repository"
+    repository.updateFilm(_ as Integer, _ as Film) >> Mock(Film)
+
+    when: "updateFilm is called"
+    def result = useCases.updateFilm(1, new Film())
+
+    then: "a domain model is returned"
+    result != null
+  }
 }

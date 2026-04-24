@@ -104,4 +104,20 @@ class FilmRepositoryImplDataJpaTest {
     assertEquals("NEW FILM", created.getTitle());
     assertEquals(originalLanguage, created.getOriginalLanguage());
   }
+
+  @Test
+  void updateFilmReturnsADomainModel() {
+    Film film =
+        Film.builder()
+            .title("UPDATED FILM")
+            .language(FilmLanguage.ENGLISH)
+            .rentalDuration(3)
+            .rentalRate(BigDecimal.valueOf(4.99))
+            .replacementCost(BigDecimal.valueOf(20.99))
+            .build();
+    Film updated = repository.updateFilm(1, film);
+    assertNotNull(updated);
+    assertEquals(Integer.valueOf(1), updated.getId());
+    assertEquals("UPDATED FILM", updated.getTitle());
+  }
 }

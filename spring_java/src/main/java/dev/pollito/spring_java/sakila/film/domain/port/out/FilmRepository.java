@@ -10,4 +10,6 @@ public interface FilmRepository {
   Film getFilm(Integer id);
 
   Page<Film> getFilms(Pageable pageable);
+
+  Film updateFilm(Integer id, Film film);
 }

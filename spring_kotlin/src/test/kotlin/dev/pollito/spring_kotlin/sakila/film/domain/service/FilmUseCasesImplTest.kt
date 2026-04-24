@@ -34,4 +34,10 @@ class FilmUseCasesImplTest {
     every { repository.getFilms(any()) } returns PageImpl(emptyList(), PageRequest.of(0, 10), 0)
     assertNotNull(useCases.getFilms(PageRequest.of(0, 10)))
   }
+
+  @Test
+  fun `updateFilm returns a domain model`() {
+    every { repository.updateFilm(any(), any()) } returns mockk()
+    assertNotNull(useCases.updateFilm(1, mockk()))
+  }
 }

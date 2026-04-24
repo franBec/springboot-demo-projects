@@ -248,9 +248,10 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
         .andExpect(hasErrorFields(INTERNAL_SERVER_ERROR))
   }
 
-  def "updateFilm returns INTERNAL_SERVER_ERROR"() {
-    given: "an id"
+  def "updateFilm returns OK"() {
+    given: "a mocked use case returning a film"
     def id = 1
+    useCases.updateFilm(id, _ as Film) >> sampleFilm(1)
 
     when: "updateFilm is requested"
     def result = mockMvc.perform(
@@ -260,9 +261,11 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
         .accept(APPLICATION_JSON)
         )
 
-    then: "response is INTERNAL_SERVER_ERROR"
+    then: "response is OK"
     result
-        .andExpect(hasStandardApiResponseFields("${PATH}/${id}", INTERNAL_SERVER_ERROR))
-        .andExpect(hasErrorFields(INTERNAL_SERVER_ERROR))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(hasStandardApiResponseFields("${PATH}/${id}", OK))
+        .andExpect(hasFilmFields('$.data'))
   }
 }

@@ -41,4 +41,10 @@ class FilmUseCasesImplTest {
         .thenReturn(new PageImpl<>(emptyList(), of(0, 10), 0));
     assertNotNull(useCases.getFilms(of(0, 10)));
   }
+
+  @Test
+  void updateFilmReturnsADomainModel() {
+    when(repository.updateFilm(anyInt(), any())).thenReturn(mock(Film.class));
+    assertNotNull(useCases.updateFilm(1, mock(Film.class)));
+  }
 }

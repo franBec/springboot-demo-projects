@@ -65,6 +65,14 @@ class FilmRestController(
   }
 
   override fun updateFilm(id: Int, filmFields: FilmFields): ResponseEntity<FilmResponse> {
-    throw RuntimeException("Not implemented")
+    return ok(
+        FilmResponse(
+            data = mapper.map(useCases.updateFilm(id, mapper.map(filmFields))),
+            instance = request.requestURI,
+            timestamp = now(),
+            trace = current().spanContext.traceId,
+            status = OK.value(),
+        )
+    )
   }
 }

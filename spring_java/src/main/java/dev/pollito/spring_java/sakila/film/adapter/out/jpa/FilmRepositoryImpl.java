@@ -36,4 +36,17 @@ public class FilmRepositoryImpl implements FilmRepository {
   public Page<Film> getFilms(Pageable pageable) {
     return mapper.map(repository.findAll(pageable));
   }
+
+  @Override
+  public Film updateFilm(Integer id, @NonNull Film film) {
+    var language = languageJpaRepository.findByName(film.getLanguage().getValue()).orElseThrow();
+    var originalLanguage =
+        film.getOriginalLanguage() != null
+            ? languageJpaRepository.findByName(film.getOriginalLanguage().getValue()).orElseThrow()
+            : null;
+    var entity = mapper.map(film, language, originalLanguage);
+    entity.setFilmId(id);
+    entity.setLastUpdate(java.time.LocalDateTime.now());
+    return mapper.map(repository.save(entity));
+  }
 }

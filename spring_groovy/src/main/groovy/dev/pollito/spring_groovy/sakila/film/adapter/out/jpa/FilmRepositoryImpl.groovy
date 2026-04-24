@@ -39,4 +39,14 @@ class FilmRepositoryImpl implements FilmRepository {
   Page<Film> getFilms(Pageable pageable) {
     mapper.map(repository.findAll(pageable))
   }
+
+  @Override
+  Film updateFilm(Integer id, Film film) {
+    def language = languageJpaRepository.findByName(film.language.value).orElseThrow()
+    def originalLanguage = film.originalLanguage ? languageJpaRepository.findByName(film.originalLanguage.value).orElseThrow() : null
+    def entity = mapper.map(film, language, originalLanguage)
+    entity.filmId = id
+    entity.lastUpdate = LocalDateTime.now()
+    mapper.map(repository.save(entity))
+  }
 }

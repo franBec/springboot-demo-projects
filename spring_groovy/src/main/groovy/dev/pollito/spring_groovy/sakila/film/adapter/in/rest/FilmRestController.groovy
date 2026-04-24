@@ -75,6 +75,13 @@ class FilmRestController implements FilmsApi {
 
   @Override
   ResponseEntity<FilmResponse> updateFilm(Integer id, FilmFields filmFields) {
-    throw new RuntimeException("Not implemented")
+    ok(
+        new FilmResponse()
+        .data(mapper.map(useCases.updateFilm(id, mapper.map(filmFields))))
+        .instance(request.requestURI)
+        .timestamp(now())
+        .trace(Span.current().spanContext.traceId)
+        .status(OK.value())
+        )
   }
 }

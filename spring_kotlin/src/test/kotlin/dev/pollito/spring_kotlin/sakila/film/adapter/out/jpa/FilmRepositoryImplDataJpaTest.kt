@@ -117,4 +117,28 @@ class FilmRepositoryImplDataJpaTest {
     assertEquals("NEW FILM", created.title)
     assertEquals(originalLanguage, created.originalLanguage)
   }
+
+  @Test
+  fun `updateFilm returns a domain model`() {
+    val film =
+        Film(
+            id = null,
+            title = "UPDATED FILM",
+            description = null,
+            releaseYear = null,
+            rating = null,
+            length = null,
+            language = FilmLanguage.ENGLISH,
+            originalLanguage = null,
+            rentalDuration = 3,
+            rentalRate = BigDecimal.valueOf(4.99),
+            replacementCost = BigDecimal.valueOf(20.99),
+            specialFeatures = null,
+            lastUpdate = null,
+        )
+    val updated = repository.updateFilm(1, film)
+    assertNotNull(updated)
+    assertEquals(1, updated.id)
+    assertEquals("UPDATED FILM", updated.title)
+  }
 }

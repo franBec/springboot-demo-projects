@@ -252,8 +252,10 @@ class FilmRestControllerMockMvcTest {
   inner class UpdateFilm {
 
     @Test
-    fun `returns INTERNAL_SERVER_ERROR`() {
+    fun `returns OK`() {
       val filmId = 1
+      every { useCases.updateFilm(any(), any()) } returns sampleFilm(1)
+
       mockMvc
           .put("$PATH/$filmId") {
             contentType = APPLICATION_JSON
@@ -261,9 +263,10 @@ class FilmRestControllerMockMvcTest {
             accept = APPLICATION_JSON
           }
           .andExpect {
-            status { isInternalServerError() }
-            hasStandardApiResponseFields("$PATH/$filmId", INTERNAL_SERVER_ERROR)
-            hasErrorFields(INTERNAL_SERVER_ERROR)
+            status { isOk() }
+            content { contentType(APPLICATION_JSON) }
+            hasStandardApiResponseFields("$PATH/$filmId", OK)
+            hasFilmFields("$.data")
           }
     }
   }

@@ -27,4 +27,9 @@ public class FilmUseCasesImpl implements FilmUseCases {
   public Page<Film> getFilms(Pageable pageable) {
     return repository.getFilms(pageable);
   }
+
+  @Override
+  public Film updateFilm(Integer id, Film film) {
+    return repository.updateFilm(id, film);
+  }
 }

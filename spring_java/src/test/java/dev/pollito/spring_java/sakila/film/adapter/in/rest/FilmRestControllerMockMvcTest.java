@@ -279,17 +279,20 @@ class FilmRestControllerMockMvcTest {
   class UpdateFilm {
 
     @Test
-    void returnsInternalServerError() throws Exception {
+    void returnsOk() throws Exception {
       Integer filmId = 1;
-      HttpStatus status = INTERNAL_SERVER_ERROR;
+      when(filmUseCases.updateFilm(anyInt(), any())).thenReturn(sampleFilm(1));
+
       mockMvc
           .perform(
               put(PATH + "/{id}", filmId)
                   .contentType(APPLICATION_JSON)
                   .content(contentBody())
                   .accept(APPLICATION_JSON))
-          .andExpect(hasStandardApiResponseFields(PATH + "/" + filmId, status))
-          .andExpect(hasErrorFields(status));
+          .andExpect(status().isOk())
+          .andExpect(content().contentType(APPLICATION_JSON))
+          .andExpect(hasStandardApiResponseFields(PATH + "/" + filmId, OK))
+          .andExpect(hasFilmFields("$.data"));
     }
   }
 }

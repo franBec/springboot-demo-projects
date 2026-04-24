@@ -98,4 +98,21 @@ class FilmRepositoryImplDataJpaSpec extends Specification {
     where:
     originalLanguage << [null, FilmLanguage.FRENCH]
   }
+
+  def "updateFilm returns a domain model"() {
+    when: "updateFilm is called"
+    def film = new Film(
+        title: 'UPDATED FILM',
+        language: FilmLanguage.ENGLISH,
+        rentalDuration: 3,
+        rentalRate: BigDecimal.valueOf(4.99),
+        replacementCost: BigDecimal.valueOf(20.99)
+        )
+    def result = repository.updateFilm(1, film)
+
+    then: "a domain model with the same id and updated title is returned"
+    result != null
+    result.id == 1
+    result.title == 'UPDATED FILM'
+  }
 }

@@ -10,4 +10,6 @@ interface FilmRepository {
   fun getFilm(id: Int): Film
 
   fun getFilms(pageable: Pageable): Page<Film>
+
+  fun updateFilm(id: Int, film: Film): Film
 }
