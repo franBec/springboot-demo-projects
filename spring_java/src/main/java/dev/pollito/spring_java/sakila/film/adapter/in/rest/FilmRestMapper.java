@@ -5,10 +5,13 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
 import dev.pollito.spring_java.sakila.generated.model.FilmListResponseAllOfData;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = SPRING)
 public interface FilmRestMapper {
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "lastUpdate", ignore = true)
   Film map(dev.pollito.spring_java.sakila.generated.model.FilmFields source);
 
   dev.pollito.spring_java.sakila.generated.model.Film map(Film source);

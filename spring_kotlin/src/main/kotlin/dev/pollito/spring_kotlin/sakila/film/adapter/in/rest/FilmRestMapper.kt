@@ -54,6 +54,8 @@ interface FilmRestMapper {
   )
   fun mapRating(source: GeneratedFilmRating): FilmRating
 
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "lastUpdate", ignore = true)
   fun map(source: dev.pollito.spring_kotlin.sakila.generated.model.FilmFields): Film
 
   fun map(source: Film): dev.pollito.spring_kotlin.sakila.generated.model.Film
