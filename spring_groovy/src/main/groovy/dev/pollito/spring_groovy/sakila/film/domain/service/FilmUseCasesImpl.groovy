@@ -36,4 +36,9 @@ class FilmUseCasesImpl implements FilmUseCases {
   Film updateFilm(Integer id, Film film) {
     repository.updateFilm(id, film)
   }
+
+  @Override
+  void deleteFilm(Integer id) {
+    repository.deleteFilm(id)
+  }
 }

@@ -41,4 +41,9 @@ class FilmRepositoryImpl(
     entity.lastUpdate = now()
     return mapper.map(repository.save(entity))
   }
+
+  override fun deleteFilm(id: Int) {
+    repository.findById(id).orElseThrow()
+    repository.deleteById(id)
+  }
 }

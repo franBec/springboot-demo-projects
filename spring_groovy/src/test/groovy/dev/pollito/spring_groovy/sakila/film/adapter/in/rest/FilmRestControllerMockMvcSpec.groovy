@@ -232,7 +232,7 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
     language << FilmLanguage.values()
   }
 
-  def "deleteFilm returns INTERNAL_SERVER_ERROR"() {
+  def "deleteFilm returns NO_CONTENT"() {
     given: "an id"
     def id = 1
 
@@ -242,10 +242,8 @@ class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResu
         .accept(APPLICATION_JSON)
         )
 
-    then: "response is INTERNAL_SERVER_ERROR"
-    result
-        .andExpect(hasStandardApiResponseFields("${PATH}/${id}", INTERNAL_SERVER_ERROR))
-        .andExpect(hasErrorFields(INTERNAL_SERVER_ERROR))
+    then: "response is NO_CONTENT"
+    result.andExpect(status().isNoContent())
   }
 
   def "updateFilm returns OK"() {

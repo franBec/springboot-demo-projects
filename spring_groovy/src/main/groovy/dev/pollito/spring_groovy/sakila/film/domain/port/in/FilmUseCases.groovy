@@ -12,4 +12,6 @@ interface FilmUseCases {
   Page<Film> getFilms(Pageable pageable)
 
   Film updateFilm(Integer id, Film film)
+
+  void deleteFilm(Integer id)
 }

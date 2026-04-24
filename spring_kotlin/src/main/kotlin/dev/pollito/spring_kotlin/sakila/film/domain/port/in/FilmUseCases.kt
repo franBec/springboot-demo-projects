@@ -12,4 +12,6 @@ interface FilmUseCases {
   fun getFilms(pageable: Pageable): Page<Film>
 
   fun updateFilm(id: Int, film: Film): Film
+
+  fun deleteFilm(id: Int)
 }

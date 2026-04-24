@@ -37,7 +37,8 @@ class FilmRestController(
   }
 
   override fun deleteFilm(id: Int): ResponseEntity<Unit> {
-    throw RuntimeException("Not implemented")
+    useCases.deleteFilm(id)
+    return ResponseEntity.noContent().build()
   }
 
   override fun getFilm(id: Int): ResponseEntity<FilmResponse> {

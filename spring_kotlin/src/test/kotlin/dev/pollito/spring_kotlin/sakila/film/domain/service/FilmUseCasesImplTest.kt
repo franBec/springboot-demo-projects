@@ -7,6 +7,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
@@ -39,5 +40,17 @@ class FilmUseCasesImplTest {
   fun `updateFilm returns a domain model`() {
     every { repository.updateFilm(any(), any()) } returns mockk()
     assertNotNull(useCases.updateFilm(1, mockk()))
+  }
+
+  @Test
+  fun `deleteFilm delegates to repository`() {
+    every { repository.deleteFilm(any()) } returns Unit
+    useCases.deleteFilm(1)
+  }
+
+  @Test
+  fun `deleteFilm throws NoSuchElementException when film does not exist`() {
+    every { repository.deleteFilm(any()) } throws NoSuchElementException()
+    assertFailsWith<NoSuchElementException> { useCases.deleteFilm(999) }
   }
 }

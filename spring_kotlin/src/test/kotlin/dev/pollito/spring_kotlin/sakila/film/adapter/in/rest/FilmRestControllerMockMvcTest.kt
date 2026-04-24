@@ -6,7 +6,6 @@ import dev.pollito.spring_kotlin.sakila.film.domain.model.Film
 import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmLanguage
 import dev.pollito.spring_kotlin.sakila.film.domain.model.FilmRating
 import dev.pollito.spring_kotlin.sakila.film.domain.port.`in`.FilmUseCases
-import dev.pollito.spring_kotlin.test.util.hasErrorFields
 import dev.pollito.spring_kotlin.test.util.hasPageFields
 import dev.pollito.spring_kotlin.test.util.hasStandardApiResponseFields
 import io.mockk.every
@@ -25,7 +24,6 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.servlet.MockMvc
@@ -235,15 +233,12 @@ class FilmRestControllerMockMvcTest {
   inner class DeleteFilm {
 
     @Test
-    fun `returns INTERNAL_SERVER_ERROR`() {
+    fun `returns NO_CONTENT`() {
       val filmId = 1
+      every { useCases.deleteFilm(filmId) } returns Unit
       mockMvc
           .delete("$PATH/$filmId") { accept = APPLICATION_JSON }
-          .andExpect {
-            status { isInternalServerError() }
-            hasStandardApiResponseFields("$PATH/$filmId", INTERNAL_SERVER_ERROR)
-            hasErrorFields(INTERNAL_SERVER_ERROR)
-          }
+          .andExpect { status { isNoContent() } }
     }
   }
 

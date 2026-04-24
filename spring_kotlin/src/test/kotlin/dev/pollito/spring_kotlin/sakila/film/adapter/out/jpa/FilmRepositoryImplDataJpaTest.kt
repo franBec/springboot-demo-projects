@@ -9,6 +9,7 @@ import java.time.OffsetDateTime
 import java.util.stream.Stream
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -140,5 +141,16 @@ class FilmRepositoryImplDataJpaTest {
     assertNotNull(updated)
     assertEquals(1, updated.id)
     assertEquals("UPDATED FILM", updated.title)
+  }
+
+  @Test
+  fun `deleteFilm removes entity`() {
+    repository.deleteFilm(1)
+    assertFailsWith<NoSuchElementException> { repository.getFilm(1) }
+  }
+
+  @Test
+  fun `deleteFilm throws NoSuchElementException when film does not exist`() {
+    assertFailsWith<NoSuchElementException> { repository.deleteFilm(999) }
   }
 }

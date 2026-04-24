@@ -46,7 +46,8 @@ class FilmRestController implements FilmsApi {
 
   @Override
   ResponseEntity<Void> deleteFilm(Integer id) {
-    throw new RuntimeException("Not implemented")
+    useCases.deleteFilm(id)
+    ResponseEntity.noContent().build()
   }
 
   @Override

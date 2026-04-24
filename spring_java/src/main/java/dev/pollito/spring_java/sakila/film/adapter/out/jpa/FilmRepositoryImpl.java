@@ -49,4 +49,10 @@ public class FilmRepositoryImpl implements FilmRepository {
     entity.setLastUpdate(java.time.LocalDateTime.now());
     return mapper.map(repository.save(entity));
   }
+
+  @Override
+  public void deleteFilm(Integer id) {
+    repository.findById(id).orElseThrow();
+    repository.deleteById(id);
+  }
 }

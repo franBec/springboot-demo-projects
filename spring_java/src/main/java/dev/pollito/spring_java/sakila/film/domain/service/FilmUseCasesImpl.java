@@ -32,4 +32,9 @@ public class FilmUseCasesImpl implements FilmUseCases {
   public Film updateFilm(Integer id, Film film) {
     return repository.updateFilm(id, film);
   }
+
+  @Override
+  public void deleteFilm(Integer id) {
+    repository.deleteFilm(id);
+  }
 }

@@ -16,4 +16,6 @@ class FilmUseCasesImpl(private val repository: FilmRepository) : FilmUseCases {
   override fun getFilms(pageable: Pageable): Page<Film> = repository.getFilms(pageable)
 
   override fun updateFilm(id: Int, film: Film): Film = repository.updateFilm(id, film)
+
+  override fun deleteFilm(id: Int) = repository.deleteFilm(id)
 }

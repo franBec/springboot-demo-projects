@@ -11,6 +11,7 @@ import dev.pollito.spring_java.sakila.film.domain.port.out.FilmRepository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
@@ -119,5 +120,16 @@ class FilmRepositoryImplDataJpaTest {
     assertNotNull(updated);
     assertEquals(Integer.valueOf(1), updated.getId());
     assertEquals("UPDATED FILM", updated.getTitle());
+  }
+
+  @Test
+  void deleteFilmRemovesEntity() {
+    repository.deleteFilm(1);
+    assertThrows(NoSuchElementException.class, () -> repository.getFilm(1));
+  }
+
+  @Test
+  void deleteFilmThrowsNoSuchElementExceptionWhenFilmDoesNotExist() {
+    assertThrows(NoSuchElementException.class, () -> repository.deleteFilm(999));
   }
 }

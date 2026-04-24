@@ -115,4 +115,21 @@ class FilmRepositoryImplDataJpaSpec extends Specification {
     result.id == 1
     result.title == 'UPDATED FILM'
   }
+
+  def "deleteFilm removes entity"() {
+    when: "deleteFilm is called and then getFilm is called"
+    repository.deleteFilm(1)
+    repository.getFilm(1)
+
+    then: "the entity is removed"
+    thrown(NoSuchElementException)
+  }
+
+  def "deleteFilm throws NoSuchElementException when film does not exist"() {
+    when: "deleteFilm is called with a non-existent id"
+    repository.deleteFilm(999)
+
+    then: "NoSuchElementException is thrown"
+    thrown(NoSuchElementException)
+  }
 }

@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.domain.PageRequest.of;
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -39,7 +38,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -264,13 +262,11 @@ class FilmRestControllerMockMvcTest {
   class DeleteFilm {
 
     @Test
-    void returnsInternalServerError() throws Exception {
+    void returnsNoContent() throws Exception {
       Integer filmId = 1;
-      HttpStatus status = INTERNAL_SERVER_ERROR;
       mockMvc
           .perform(delete(PATH + "/{id}", filmId).accept(APPLICATION_JSON))
-          .andExpect(hasStandardApiResponseFields(PATH + "/" + filmId, status))
-          .andExpect(hasErrorFields(status));
+          .andExpect(status().isNoContent());
     }
   }
 

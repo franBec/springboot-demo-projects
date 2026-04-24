@@ -2,6 +2,7 @@ package dev.pollito.spring_groovy.sakila.film.domain.service
 
 import dev.pollito.spring_groovy.sakila.film.domain.model.Film
 import dev.pollito.spring_groovy.sakila.film.domain.port.out.FilmRepository
+import java.util.NoSuchElementException
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -54,5 +55,26 @@ class FilmUseCasesImplSpec extends Specification {
 
     then: "a domain model is returned"
     result != null
+  }
+
+  def "deleteFilm delegates to repository"() {
+    given: "a mocked repository"
+
+    when: "deleteFilm is called"
+    useCases.deleteFilm(1)
+
+    then: "no exception is thrown"
+    noExceptionThrown()
+  }
+
+  def "deleteFilm throws NoSuchElementException when film does not exist"() {
+    given: "a mocked repository that throws"
+    repository.deleteFilm(_ as Integer) >> { throw new NoSuchElementException() }
+
+    when: "deleteFilm is called with a non-existent id"
+    useCases.deleteFilm(999)
+
+    then: "NoSuchElementException is thrown"
+    thrown(NoSuchElementException)
   }
 }
