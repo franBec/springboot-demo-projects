@@ -14,7 +14,7 @@ on:
       - '.opencode/**'
 
 concurrency:
-  group: deploy-main
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
