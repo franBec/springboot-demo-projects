@@ -33,11 +33,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,6 +47,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 @WebMvcTest(FilmRestController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import({ControllerAdvice.class, FilmRestMapperImpl.class})
 class FilmRestControllerMockMvcTest {
 
@@ -125,6 +128,10 @@ class FilmRestControllerMockMvcTest {
   @SuppressWarnings("unused")
   @MockitoBean
   private FilmUseCases filmUseCases;
+
+  @SuppressWarnings("unused")
+  @MockitoBean
+  private UserDetailsService userDetailsService;
 
   @SuppressWarnings("unused")
   @MockitoSpyBean

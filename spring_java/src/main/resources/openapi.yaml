@@ -14,7 +14,57 @@ servers:
 tags:
   - name: Films
     description: Endpoints related to films
+  - name: Auth
+    description: Endpoints related to authentication
 paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      operationId: login
+      summary: Authenticates a staff member
+      description: Authenticates using username and password and returns a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      operationId: getCurrentUserDetails
+      summary: Returns the currently authenticated staff member
+      description: Returns the staff member associated with the provided JWT token
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current staff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailsResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /films:
     get:
       x-spring-paginated: true
@@ -23,6 +73,7 @@ paths:
       operationId: getFilms
       summary: Lists films
       description: Returns a standard response where the data property is a page of films matching the parameters criteria
+      security: []
       parameters:
         - name: page
           in: query
@@ -71,6 +122,8 @@ paths:
       operationId: createFilm
       summary: Creates a new film
       description: Creates a new film. Returns a standard response where the data property is the created film
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -98,6 +151,7 @@ paths:
       operationId: getFilm
       summary: Finds a film by id
       description: Returns a standard response where the data property is the film with matching id
+      security: []
       parameters:
         - $ref: '#/components/parameters/filmId'
       responses:
@@ -119,6 +173,8 @@ paths:
       operationId: updateFilm
       summary: Updates a film
       description: Updates the fields of a film. Returns a standard response where the data property is the updated film
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/filmId'
       requestBody:
@@ -146,6 +202,8 @@ paths:
       operationId: deleteFilm
       summary: Deletes a film
       description: Deletes a film with matching id
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/filmId'
       responses:
@@ -158,6 +216,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   parameters:
     filmId:
       name: id
@@ -181,7 +244,7 @@ components:
             detail:
               type: string
               description: Description of the problem
-              example: "No static resource for request '/'."
+              example: "No static resource for request '/' ."
           required:
             - title
     Film:
@@ -300,6 +363,39 @@ components:
               $ref: '#/components/schemas/Film'
           required:
             - data
+    LoginRequest:
+      type: object
+      description: Credentials for authentication
+      properties:
+        username:
+          type: string
+          description: Staff username
+          example: 'Mike'
+        password:
+          type: string
+          description: Staff password
+          example: 'password'
+          format: password
+      required:
+        - username
+        - password
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseMetadata'
+        - type: object
+          description: JWT token response
+          properties:
+            data:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: JWT access token
+                  example: 'eyJhbGciOiJIUzI1NiJ9...'
+              required:
+                - token
+          required:
+            - data
     Page:
       type: object
       description: Sublist of a list of objects. It allows to gain information about the position of it in the containing entire list
@@ -370,3 +466,72 @@ components:
         - timestamp
         - trace
         - status
+    Staff:
+      type: object
+      description: A staff member
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the staff member
+          example: 1
+          minimum: 1
+        firstName:
+          type: string
+          description: First name of the staff member
+          example: 'Mike'
+        lastName:
+          type: string
+          description: Last name of the staff member
+          example: 'Hillyer'
+        username:
+          type: string
+          description: Username for login
+          example: 'Mike'
+        email:
+          type: string
+          description: Email address
+          example: 'Mike.Hillyer@sakilastaff.com'
+        active:
+          type: boolean
+          description: Whether the staff member is active
+          example: true
+      required:
+        - id
+        - firstName
+        - lastName
+        - username
+        - active
+    UserDetails:
+      type: object
+      description: Details of the currently authenticated user
+      properties:
+        username:
+          type: string
+          description: Username of the user
+          example: 'Mike'
+        accountNonLocked:
+          type: boolean
+          description: Whether the user's account is not locked
+          example: true
+        authorities:
+          type: array
+          description: Authorities granted to the user
+          items:
+            type: string
+          example:
+            - 'ROLE_STAFF'
+        staff:
+          $ref: '#/components/schemas/Staff'
+      required:
+        - username
+        - accountNonLocked
+        - authorities
+    UserDetailsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseMetadata'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/UserDetails'
+          required:
+            - data

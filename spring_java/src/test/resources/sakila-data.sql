@@ -124,9 +124,9 @@ INSERT INTO "PUBLIC"."STORE" VALUES
 (2, 2, 2, TIMESTAMP '2006-02-15 04:57:12');
 
 INSERT INTO "PUBLIC"."STAFF" VALUES
-(1, 'Mike', 'Hillyer',  3, NULL, 'Mike.Hillyer@sakilastaff.com',  1, TRUE, 'Mike', 'd435bf0a69ad0a866b9ba50fde5bef0c',          TIMESTAMP '2006-02-15 04:57:16');
+(1, 'Mike', 'Hillyer',  3, NULL, 'Mike.Hillyer@sakilastaff.com',  1, TRUE, 'Mike', '$2a$10$BuPx936L/1mmFsSEvFUanOR/dvE4nhAciLvCovbSZQxVbVA9gVDrO',          TIMESTAMP '2006-02-15 04:57:16');
 INSERT INTO "PUBLIC"."STAFF" VALUES
-(2, 'Jon',  'Stephens', 4, NULL, 'Jon.Stephens@sakilastaff.com',  2, TRUE, 'Jon',  '8cb2237d0679ca88db6464eac60da96345513964', TIMESTAMP '2006-02-15 04:57:16');
+(2, 'Jon',  'Stephens', 4, NULL, 'Jon.Stephens@sakilastaff.com',  2, TRUE, 'Jon',  '$2a$10$Gw380J97F3u0AfFfvNkJUOhbrGcaUsL9oaRoyMaoPmr07ovBLodBe', TIMESTAMP '2006-02-15 04:57:16');
 
 SET REFERENTIAL_INTEGRITY TRUE;
 
