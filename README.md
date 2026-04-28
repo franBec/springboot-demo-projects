@@ -24,7 +24,12 @@ This repository implements some use cases from the [Sakila Sample Database](http
     * [Logging](#logging)
     * [Mapping](#mapping)
   * [Authentication & Identity](#authentication--identity)
-    * [Login Example](#login-example)
+    * [Authentication Example](#authentication-example)
+    * [Authorized Example](#authorized-example)
+      * [Retrieve Current Authenticated User](#retrieve-current-authenticated-user)
+    * [Unauthorized Example](#unauthorized-example)
+      * [Missing Authorization Header](#missing-authorization-header)
+      * [Invalid Authorization Token](#invalid-authorization-token)
   * [Integrations](#integrations)
     * [APIs & External Services](#apis--external-services)
     * [Data Storage](#data-storage)
@@ -117,6 +122,10 @@ For the best local development experience, I recommend running the projects with
     - Spring Boot Starter OpenTelemetry - Distributed tracing
     - Micrometer Prometheus 1.17.0-M2 - Metrics export
     - Kotlin Logging JVM 8.x.x - Kotlin logging facade (Kotlin module)
+- **Security:**
+    - Spring Boot Starter Security - Authentication and authorization
+    - Spring Security Test - Security testing support
+    - JJWT 0.12.6 - JWT token generation and validation
 
 ## Architecture
 
@@ -442,7 +451,9 @@ sequenceDiagram
   deactivate AuthRestController
 ```
 
-### Retrieve Current Authenticated User Example
+### Authorized Example
+
+#### Retrieve Current Authenticated User
 
 ```log
 $ curl -s 'GET' \
@@ -477,15 +488,44 @@ sequenceDiagram
   participant Client
   box Adapter In
     participant AuthRestController
+    participant AuthRestMapper
   end
   box Domain
     participant AuthUseCasesImpl
   end
   box Infrastructure
+    participant JwtAuthenticationFilter
+    participant JwtService
+    participant SakilaUserDetailsService
     participant SecurityContextHolder
   end
 
-  Client->>AuthRestController: GET /api/auth/me
+  Client->>JwtAuthenticationFilter: GET /api/auth/me (Authorization: Bearer <token>)
+  activate JwtAuthenticationFilter
+
+  JwtAuthenticationFilter->>JwtService: extractUsername(token)
+  activate JwtService
+  JwtService-->>JwtAuthenticationFilter: username ("Mike")
+  deactivate JwtService
+
+  JwtAuthenticationFilter->>SakilaUserDetailsService: loadUserByUsername("Mike")
+  activate SakilaUserDetailsService
+  SakilaUserDetailsService-->>JwtAuthenticationFilter: SakilaUserDetails
+  deactivate SakilaUserDetailsService
+
+  JwtAuthenticationFilter->>JwtService: isTokenValid(token, userDetails)
+  activate JwtService
+  JwtService-->>JwtAuthenticationFilter: true
+  deactivate JwtService
+
+  JwtAuthenticationFilter->>SecurityContextHolder: setAuthentication(authToken)
+  activate SecurityContextHolder
+  SecurityContextHolder-->>JwtAuthenticationFilter: context populated
+  deactivate SecurityContextHolder
+
+  JwtAuthenticationFilter->>AuthRestController: continue filter chain
+  deactivate JwtAuthenticationFilter
+
   activate AuthRestController
 
   AuthRestController->>AuthUseCasesImpl: getCurrentUser()
@@ -499,6 +539,11 @@ sequenceDiagram
 
   AuthUseCasesImpl-->>AuthRestController: SakilaUserDetails
   deactivate AuthUseCasesImpl
+
+  AuthRestController->>AuthRestMapper: mapper.map(userDetails)
+  activate AuthRestMapper
+  AuthRestMapper-->>AuthRestController: REST DTO User
+  deactivate AuthRestMapper
 
   AuthRestController-->>Client: HTTP 200 OK + JSON body
   deactivate AuthRestController
