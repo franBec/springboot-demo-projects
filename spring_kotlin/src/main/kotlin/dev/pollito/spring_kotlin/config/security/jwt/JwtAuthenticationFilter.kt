@@ -1,8 +1,10 @@
 package dev.pollito.spring_kotlin.config.security.jwt
 
+import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -26,7 +28,12 @@ class JwtAuthenticationFilter(
     }
 
     val token = authHeader.substring(7)
-    val username = jwtService.extractUsername(token)
+    val username =
+        try {
+          jwtService.extractUsername(token)
+        } catch (e: JwtException) {
+          throw InsufficientAuthenticationException("Invalid or malformed JWT token", e)
+        }
 
     if (username == null || SecurityContextHolder.getContext().authentication != null) {
       filterChain.doFilter(request, response)

@@ -1,13 +1,17 @@
 package dev.pollito.spring_kotlin.config.security.jwt
 
+import io.jsonwebtoken.MalformedJwtException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import java.lang.reflect.InvocationTargetException
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextHolder.clearContext
 import org.springframework.security.core.userdetails.User
@@ -35,7 +39,11 @@ class JwtAuthenticationFilterTest {
                 FilterChain::class.java,
             )
     method.isAccessible = true
-    method.invoke(filter, request, response, filterChain)
+    try {
+      method.invoke(filter, request, response, filterChain)
+    } catch (e: InvocationTargetException) {
+      throw e.cause ?: e
+    }
   }
 
   @Test
@@ -62,6 +70,20 @@ class JwtAuthenticationFilterTest {
     doFilterInternal(filter, request, response, filterChain)
 
     verify { filterChain.doFilter(request, response) }
+  }
+
+  @Test
+  fun `malformed token throws InsufficientAuthenticationException`() {
+    val request: HttpServletRequest = mockk(relaxed = true)
+    val response: HttpServletResponse = mockk(relaxed = true)
+    val filterChain: FilterChain = mockk(relaxed = true)
+
+    every { request.getHeader("Authorization") } returns "Bearer invalid-token"
+    every { jwtService.extractUsername("invalid-token") } throws MalformedJwtException("bad")
+
+    assertFailsWith<InsufficientAuthenticationException> {
+      doFilterInternal(filter, request, response, filterChain)
+    }
   }
 
   @Test

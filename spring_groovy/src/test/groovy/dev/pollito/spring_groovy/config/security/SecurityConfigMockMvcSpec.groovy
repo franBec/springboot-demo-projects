@@ -64,5 +64,6 @@ class SecurityConfigMockMvcSpec extends Specification {
     HttpMethod.POST         | "/api/auth/login"| '{"username":"Mike","password":"password"}'| 200
     HttpMethod.GET          | "/api/auth/me"   | null                                      | 401
     HttpMethod.GET          | "/actuator/health"| null                                     | 200
+    HttpMethod.GET          | "/error"         | null                                      | 500
   }
 }

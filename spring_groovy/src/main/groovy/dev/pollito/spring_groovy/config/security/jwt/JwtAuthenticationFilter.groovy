@@ -1,9 +1,11 @@
 package dev.pollito.spring_groovy.config.security.jwt
 
 import groovy.transform.CompileStatic
+import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -29,7 +31,12 @@ class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     String token = authHeader.substring(7)
-    String username = jwtService.extractUsername(token)
+    String username
+    try {
+      username = jwtService.extractUsername(token)
+    } catch (JwtException e) {
+      throw new InsufficientAuthenticationException("Invalid or malformed JWT token", e)
+    }
 
     if (username == null || SecurityContextHolder.context.authentication != null) {
       filterChain.doFilter(request, response)

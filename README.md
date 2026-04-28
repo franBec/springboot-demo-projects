@@ -23,10 +23,11 @@ This repository implements some use cases from the [Sakila Sample Database](http
     * [Error Handling](#error-handling)
     * [Logging](#logging)
     * [Mapping](#mapping)
+  * [Authentication & Identity](#authentication--identity)
+    * [Login Example](#login-example)
   * [Integrations](#integrations)
     * [APIs & External Services](#apis--external-services)
     * [Data Storage](#data-storage)
-    * [Authentication & Identity](#authentication--identity)
     * [Monitoring & Observability](#monitoring--observability)
     * [CI/CD & Deployment](#cicd--deployment)
     * [Webhooks & Callbacks](#webhooks--callbacks)
@@ -333,27 +334,7 @@ sequenceDiagram
 - MapStruct for Java/Kotlin
 - ModelMapper for Groovy
 
-## Integrations
-
-### APIs & External Services
-
-None yet
-
-### Data Storage
-
-| Database       | Purpose             | Connection                      |
-|----------------|---------------------|---------------------------------|
-| PostgreSQL     | Production          | `SPRING_DATASOURCE_URL` env var |
-| H2 (in-memory) | Development/Testing | Auto-configured                 |
-
-- ORM: Hibernate 7.0.2.Final
-- Dialect: `PostgreSQLDialect`
-- Migration: Flyway (disabled in app, runs via docker-compose)
-- JDBC Drivers:
-    - PostgreSQL: `org.postgresql:postgresql`
-    - H2: `com.h2database:h2`
-
-### Authentication & Identity
+## Authentication & Identity
 
 The projects use the Sakila database `Staff` table as the source of user accounts that can log in. The original Sakila sample data stores passwords using MD5/SHA1; for compatibility with Spring Security 6.x they were migrated to BCrypt.
 
@@ -365,6 +346,8 @@ The projects use the Sakila database `Staff` table as the source of user account
 - **OpenAPI:** Bearer auth security scheme documented in `openapi.yaml`
 
 When running with the `dev` profile, you can log in with username `Mike` and password `password`.
+
+### Authentication Example
 
 ```log
 $ curl -s 'POST' \
@@ -458,6 +441,170 @@ sequenceDiagram
   AuthRestController-->>Client: HTTP 200 OK + JSON body
   deactivate AuthRestController
 ```
+
+### Retrieve Current Authenticated User Example
+
+```log
+$ curl -s 'GET' \
+  'http://localhost:8080/api/auth/me' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNaWtlIiwiaWF0IjoxNzc3NDE0MjQyLCJleHAiOjE3Nzc0MTc4NDJ9.uvSsC412-2tX5ab_lAQFeSG3BrnzJw1JQj9Msr320ls' | jq
+{
+  "instance": "/api/auth/me",
+  "status": 200,
+  "timestamp": "2026-04-28T23:11:30.415677563+01:00",
+  "trace": "e9ef841cc7107f2acc62d5a0bf25b422",
+  "data": {
+    "username": "Mike",
+    "accountNonLocked": true,
+    "authorities": [
+      "ROLE_STAFF"
+    ],
+    "staff": {
+      "id": 1,
+      "firstName": "Mike",
+      "lastName": "Hillyer",
+      "username": "Mike",
+      "active": true,
+      "email": "Mike.Hillyer@sakilastaff.com"
+    }
+  }
+}
+```
+
+```mermaid
+sequenceDiagram
+  participant Client
+  box Adapter In
+    participant AuthRestController
+  end
+  box Domain
+    participant AuthUseCasesImpl
+  end
+  box Infrastructure
+    participant SecurityContextHolder
+  end
+
+  Client->>AuthRestController: GET /api/auth/me
+  activate AuthRestController
+
+  AuthRestController->>AuthUseCasesImpl: getCurrentUser()
+  activate AuthUseCasesImpl
+
+  AuthUseCasesImpl->>SecurityContextHolder: getContext().getAuthentication()
+  activate SecurityContextHolder
+
+  SecurityContextHolder-->>AuthUseCasesImpl: Authentication (SakilaUserDetails)
+  deactivate SecurityContextHolder
+
+  AuthUseCasesImpl-->>AuthRestController: SakilaUserDetails
+  deactivate AuthUseCasesImpl
+
+  AuthRestController-->>Client: HTTP 200 OK + JSON body
+  deactivate AuthRestController
+```
+
+### Unauthorized Example
+
+#### Missing Authorization Header
+
+```log
+$ curl -s 'GET' \
+  'http://localhost:8080/api/auth/me' \
+  -H 'accept: application/json' | jq
+{
+  "title": "Unauthorized",
+  "detail": "Full authentication is required to access this resource",
+  "instance": "/api/auth/me",
+  "status": 401,
+  "timestamp": "2026-04-28T23:24:03.462397829+01:00",
+  "trace": "0b6455353a71f296304ce5a0814d1f49"
+}
+```
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant DS as DispatcherServlet
+  participant CA as ControllerAdvice
+
+  Client->>DS: GET /api/auth/me (no Authorization header)
+  DS->>DS: Spring Security: Full authentication required
+  DS->>DS: throws AuthenticationException
+  DS->>CA: handleException(AuthenticationException)
+  CA->>CA: @ExceptionHandler(AuthenticationException.class)
+  CA->>CA: buildProblemDetail(e, UNAUTHORIZED)
+  CA->>CA: log.warn("AuthenticationException being handled")
+  CA-->>DS: ProblemDetail {status: 401, title, detail, timestamp, trace}
+  DS-->>Client: HTTP 401 UNAUTHORIZED + JSON body
+```
+
+#### Invalid Authorization Token
+
+```log
+$ curl -s 'GET' \
+  'http://localhost:8080/api/auth/me' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer non-valid-token' | jq
+{
+  "title": "Unauthorized",
+  "detail": "Invalid or malformed JWT token",
+  "instance": "/api/auth/me",
+  "status": 401,
+  "timestamp": "2026-04-28T23:28:28.845341983+01:00",
+  "trace": "2ff938e56d19299321753f40e60ceb20"
+}
+```
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant JAF as JwtAuthenticationFilter
+  participant JS as JwtService
+  participant ETF as ExceptionTranslationFilter
+  participant CAEP as CustomAuthenticationEntryPoint
+
+  Client->>JAF: GET /api/auth/me (Authorization: Bearer non-valid-token)
+  activate JAF
+
+  JAF->>JS: extractUsername(token)
+  activate JS
+  JS--xJAF: throws MalformedJwtException
+  deactivate JS
+
+  JAF->>JAF: catch JwtException → throw InsufficientAuthenticationException
+  deactivate JAF
+
+  ETF->>ETF: catches InsufficientAuthenticationException
+  ETF->>CAEP: commence(request, response, exception)
+  activate CAEP
+
+  CAEP->>CAEP: AuthenticationErrorResponseWriter.write(...)
+  CAEP-->>ETF: ProblemDetail {status: 401, detail, instance, timestamp, trace}
+  deactivate CAEP
+
+  ETF-->>Client: HTTP 401 UNAUTHORIZED + JSON body
+```
+
+## Integrations
+
+### APIs & External Services
+
+None yet
+
+### Data Storage
+
+| Database       | Purpose             | Connection                      |
+|----------------|---------------------|---------------------------------|
+| PostgreSQL     | Production          | `SPRING_DATASOURCE_URL` env var |
+| H2 (in-memory) | Development/Testing | Auto-configured                 |
+
+- ORM: Hibernate 7.0.2.Final
+- Dialect: `PostgreSQLDialect`
+- Migration: Flyway (disabled in app, runs via docker-compose)
+- JDBC Drivers:
+    - PostgreSQL: `org.postgresql:postgresql`
+    - H2: `com.h2database:h2`
 
 ### Monitoring & Observability
 

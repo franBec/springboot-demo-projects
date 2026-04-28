@@ -46,6 +46,8 @@ class SecurityConfig(
               .permitAll()
               .requestMatchers("/h2-console/**")
               .permitAll()
+              .requestMatchers("/error")
+              .permitAll()
               .requestMatchers(HttpMethod.GET, "/api/films/**")
               .permitAll()
               .requestMatchers("/api/auth/login")

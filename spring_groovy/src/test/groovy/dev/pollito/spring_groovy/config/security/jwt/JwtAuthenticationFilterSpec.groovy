@@ -2,9 +2,11 @@ package dev.pollito.spring_groovy.config.security.jwt
 
 import static org.springframework.security.core.context.SecurityContextHolder.context
 
+import io.jsonwebtoken.MalformedJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User
@@ -51,6 +53,18 @@ class JwtAuthenticationFilterSpec extends Specification {
     then:
     1 * filterChain.doFilter(request, response)
     context.authentication == null
+  }
+
+  def "malformed token throws InsufficientAuthenticationException"() {
+    given:
+    request.getHeader("Authorization") >> "Bearer invalid-token"
+    jwtService.extractUsername("invalid-token") >> { throw new MalformedJwtException("bad") }
+
+    when:
+    filter.doFilterInternal(request, response, filterChain)
+
+    then:
+    thrown(InsufficientAuthenticationException)
   }
 
   def "null username from token proceeds chain"() {

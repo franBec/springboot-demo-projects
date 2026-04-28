@@ -49,8 +49,8 @@ class JwtServiceTest {
         io.jsonwebtoken.Jwts.builder()
             .subject("Mike")
             .signWith(
-                io.jsonwebtoken.security.Keys.hmacShaKeyFor(
-                    TEST_SECRET.toByteArray(Charsets.UTF_8)))
+                io.jsonwebtoken.security.Keys.hmacShaKeyFor(TEST_SECRET.toByteArray(Charsets.UTF_8))
+            )
             .compact()
     val userDetails = User("Mike", "password", emptyList())
     assertFalse(jwtService.isTokenValid(tokenWithoutExp, userDetails))

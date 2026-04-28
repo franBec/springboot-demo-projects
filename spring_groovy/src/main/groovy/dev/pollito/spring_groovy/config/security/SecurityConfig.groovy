@@ -52,6 +52,7 @@ class SecurityConfig {
           auth
               .requestMatchers("/actuator/**").permitAll()
               .requestMatchers("/h2-console/**").permitAll()
+              .requestMatchers("/error").permitAll()
               .requestMatchers(GET, "/api/films/**").permitAll()
               .requestMatchers("/api/auth/login").permitAll()
               .anyRequest().authenticated()

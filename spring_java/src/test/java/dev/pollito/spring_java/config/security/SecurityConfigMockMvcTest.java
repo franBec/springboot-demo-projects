@@ -116,4 +116,21 @@ class SecurityConfigMockMvcTest {
       assertEndpoint(HttpMethod.valueOf(method), path, body, expectedStatus);
     }
   }
+
+  @Nested
+  @DisplayName("Error endpoint")
+  class ErrorEndpoint {
+
+    @ParameterizedTest(name = "{0} {1} returns {3}")
+    @CsvSource(
+        delimiter = '|',
+        textBlock =
+            """
+            GET | /error | | 500
+            """)
+    void errorEndpoint(String method, String path, String body, int expectedStatus)
+        throws Exception {
+      assertEndpoint(HttpMethod.valueOf(method), path, body, expectedStatus);
+    }
+  }
 }

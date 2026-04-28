@@ -70,4 +70,9 @@ class SecurityConfigMockMvcTest {
   fun `GET h2-console returns 404 in test profile`() {
     mockMvc.get("/h2-console").andExpect { status { isNotFound() } }
   }
+
+  @Test
+  fun `GET error returns 500`() {
+    mockMvc.get("/error").andExpect { status { isInternalServerError() } }
+  }
 }

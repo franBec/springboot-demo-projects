@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.security.core.context.SecurityContextHolder.clearContext;
 import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -62,6 +64,16 @@ class JwtAuthenticationFilterTest {
 
     verify(filterChain).doFilter(request, response);
     assertNull(getContext().getAuthentication());
+  }
+
+  @Test
+  void doFilterInternal_malformedToken_throwsInsufficientAuthenticationException() {
+    when(request.getHeader("Authorization")).thenReturn("Bearer invalid-token");
+    when(jwtService.extractUsername("invalid-token")).thenThrow(new MalformedJwtException("bad"));
+
+    assertThrows(
+        InsufficientAuthenticationException.class,
+        () -> filter.doFilterInternal(request, response, filterChain));
   }
 
   @Test
