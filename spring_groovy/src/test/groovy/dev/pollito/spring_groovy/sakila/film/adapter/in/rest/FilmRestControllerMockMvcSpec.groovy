@@ -18,6 +18,7 @@ import dev.pollito.spring_groovy.test.util.MockMvcResultMatchersTrait
 import java.time.OffsetDateTime
 import org.spockframework.spring.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageImpl
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.ResultMatcher
 import spock.lang.Specification
 
 @WebMvcTest(FilmRestController)
+@AutoConfigureMockMvc(addFilters = false)
 @Import([ControllerAdvice, FilmRestMapper, ModelMapperConfig])
 class FilmRestControllerMockMvcSpec extends Specification implements MockMvcResultMatchersTrait {
 

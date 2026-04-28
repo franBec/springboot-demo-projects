@@ -52,6 +52,10 @@ management:
       export:
         enabled: false
 
+jwt:
+  secret: ${JWT_SECRET:this-is-a-default-secret-key-do-not-use-in-production}
+  expiration-ms: 3600000
+
 logging:
   pattern:
     level: "trace_id=%mdc{traceId} span_id=%mdc{spanId} trace_flags=%mdc{traceFlags} %p"

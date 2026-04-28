@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
 import java.util.NoSuchElementException
 import org.springframework.core.MethodParameter
+import org.springframework.security.core.AuthenticationException
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -61,6 +62,12 @@ class ControllerAdviceMockMvcSpec extends Specification implements MockMvcResult
     static void throwNoSuchElementException() {
       throw new NoSuchElementException("No such element")
     }
+
+    @GetMapping("/authentication")
+    @SuppressWarnings("unused")
+    static void throwAuthenticationException() {
+      throw new AuthenticationException("Authentication failed") {}
+    }
   }
 
   def setup() {
@@ -87,5 +94,6 @@ class ControllerAdviceMockMvcSpec extends Specification implements MockMvcResult
     "/fake/bad-request"                 | BAD_REQUEST           || "ConstraintViolationException"
     "/fake/method-argument-not-valid"   | BAD_REQUEST           || "MethodArgumentNotValidException"
     "/fake/no-such-element"             | NOT_FOUND             || "NoSuchElementException"
+    "/fake/authentication"              | UNAUTHORIZED          || "AuthenticationException"
   }
 }

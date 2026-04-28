@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR
 import static org.springframework.http.HttpStatus.Series.SERVER_ERROR
+import static org.springframework.http.HttpStatus.UNAUTHORIZED
 import static org.springframework.http.ResponseEntity.status
 
 import dev.pollito.spring_groovy.sakila.generated.model.Error
@@ -17,6 +18,7 @@ import jakarta.validation.ConstraintViolationException
 import java.util.NoSuchElementException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -82,5 +84,10 @@ class ControllerAdvice {
   @ExceptionHandler(NoSuchElementException)
   ResponseEntity<Error> handle(NoSuchElementException e) {
     buildErrorResponse(e, NOT_FOUND)
+  }
+
+  @ExceptionHandler(AuthenticationException)
+  ResponseEntity<Error> handle(AuthenticationException e) {
+    buildErrorResponse(e, UNAUTHORIZED)
   }
 }
