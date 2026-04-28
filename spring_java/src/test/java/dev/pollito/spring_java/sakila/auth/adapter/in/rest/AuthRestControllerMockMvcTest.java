@@ -30,13 +30,21 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({AuthRestMapperImpl.class})
 class AuthRestControllerMockMvcTest {
 
-  @Autowired private MockMvc mockMvc;
+  @SuppressWarnings("unused")
+  @Autowired
+  private MockMvc mockMvc;
 
-  @MockitoBean private AuthUseCases authUseCases;
+  @SuppressWarnings("unused")
+  @MockitoBean
+  private AuthUseCases authUseCases;
 
-  @MockitoSpyBean private AuthRestMapper authRestMapper;
+  @SuppressWarnings("unused")
+  @MockitoSpyBean
+  private AuthRestMapper authRestMapper;
 
-  @MockitoBean private UserDetailsService userDetailsService;
+  @SuppressWarnings("unused")
+  @MockitoBean
+  private UserDetailsService userDetailsService;
 
   @Test
   void loginReturnsToken() throws Exception {

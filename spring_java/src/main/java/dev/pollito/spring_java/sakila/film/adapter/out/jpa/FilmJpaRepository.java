@@ -11,8 +11,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FilmJpaRepository extends JpaRepository<Film, Integer> {
 
   @EntityGraph(attributePaths = {"languageByLanguageId", "languageByOriginalLanguageId"})
-  Page<Film> findAll(@NonNull Pageable pageable);
+  @NonNull Page<Film> findAll(@NonNull Pageable pageable);
 
   @EntityGraph(attributePaths = {"languageByLanguageId", "languageByOriginalLanguageId"})
-  Optional<Film> findById(Integer id);
+  @NonNull Optional<Film> findById(Integer id);
 }

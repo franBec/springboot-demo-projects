@@ -15,7 +15,8 @@ public class SakilaUserDetailsService implements UserDetailsService {
   private final StaffRepository staffRepository;
 
   @Override
-  public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
+  public @NonNull UserDetails loadUserByUsername(@NonNull String username)
+      throws UsernameNotFoundException {
     // Composite lookup: tries staff first, ready for future customer fallback.
     // Example: .or(() -> customerRepository.findByUsername(username).map(SakilaUserDetails::new))
     // Both staff and customers will share /api/auth/login.

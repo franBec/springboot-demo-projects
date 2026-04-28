@@ -26,6 +26,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -72,11 +74,13 @@ class FilmRestControllerMockMvcTest {
         .build();
   }
 
-  private static String contentBody() {
+  @Contract(pure = true)
+  private static @NonNull String contentBody() {
     return contentBody("English", null);
   }
 
-  private static String contentBody(String language, String rating) {
+  @Contract(pure = true)
+  private static @NonNull String contentBody(String language, String rating) {
     String body =
         "{\"title\":\"ACADEMY DINOSAUR\",\"language\":\""
             + language
@@ -87,7 +91,8 @@ class FilmRestControllerMockMvcTest {
     return body + "}";
   }
 
-  private ResultMatcher hasFilmFields(String prefix) {
+  @Contract(pure = true)
+  private @NonNull ResultMatcher hasFilmFields(String prefix) {
     return result -> {
       jsonPath(prefix + ".id").value(1).match(result);
       jsonPath(prefix + ".title").value("ACADEMY DINOSAUR").match(result);
@@ -107,7 +112,8 @@ class FilmRestControllerMockMvcTest {
     };
   }
 
-  static List<Page<Film>> getFilmsScenarios() {
+  @Contract(" -> new")
+  static @NonNull @Unmodifiable List<Page<Film>> getFilmsScenarios() {
     return List.of(
         new PageImpl<>(List.of(sampleFilm(1)), of(0, 10), 1),
         new PageImpl<>(Collections.emptyList(), of(0, 10), 0));

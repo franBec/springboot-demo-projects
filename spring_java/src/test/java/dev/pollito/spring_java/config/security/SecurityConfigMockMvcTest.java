@@ -1,6 +1,7 @@
 package dev.pollito.spring_java.config.security;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,7 +25,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @ActiveProfiles("test")
 @Sql(
     scripts = {"/sakila-schema.sql", "/sakila-data.sql"},
-    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+    executionPhase = BEFORE_TEST_CLASS)
 class SecurityConfigMockMvcTest {
 
   @Autowired private MockMvc mockMvc;

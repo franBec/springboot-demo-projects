@@ -45,12 +45,6 @@ class AuthUseCasesImplTest {
     clearContext();
   }
 
-  private static @NonNull Stream<Arguments> provideInvalidAuthentications() {
-    Authentication authentication = mock(Authentication.class);
-    when(authentication.getPrincipal()).thenReturn("not-a-user-details");
-    return Stream.of(Arguments.of((Authentication) null), Arguments.of(authentication));
-  }
-
   @Test
   void authenticateReturnsToken() {
     UserDetails userDetails =
@@ -80,6 +74,12 @@ class AuthUseCasesImplTest {
     assertEquals("Mike", result.getUsername());
     assertTrue(result.isAccountNonLocked());
     assertEquals(staff, result.staff());
+  }
+
+  private static @NonNull Stream<Arguments> provideInvalidAuthentications() {
+    Authentication authentication = mock(Authentication.class);
+    when(authentication.getPrincipal()).thenReturn("not-a-user-details");
+    return Stream.of(Arguments.of((Authentication) null), Arguments.of(authentication));
   }
 
   @ParameterizedTest

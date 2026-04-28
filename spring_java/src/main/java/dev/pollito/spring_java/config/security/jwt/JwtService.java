@@ -10,6 +10,7 @@ import io.jsonwebtoken.Jwts;
 import java.util.Date;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,8 @@ public class JwtService {
     }
   }
 
-  private SecretKey getSignInKey() {
+  @Contract(" -> new")
+  private @NonNull SecretKey getSignInKey() {
     return hmacShaKeyFor(jwtProperties.secret().getBytes(UTF_8));
   }
 }
