@@ -1,0 +1,6 @@
+package dev.pollito.spring_kotlin.config.security.jwt
+
+import org.springframework.boot.context.properties.ConfigurationProperties
+
+@ConfigurationProperties(prefix = "jwt")
+data class JwtProperties(val secret: String, val expirationMs: Long)

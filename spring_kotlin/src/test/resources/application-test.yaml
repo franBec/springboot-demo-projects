@@ -15,6 +15,10 @@ spring:
       ddl-auto: none
     open-in-view: false
     show-sql: true
+jwt:
+  secret: test-secret-key-do-not-use-in-production
+  expiration-ms: 3600000
+
   sql:
     init:
       mode: never

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.data.domain.Page
@@ -34,6 +35,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 
 @WebMvcTest(FilmRestController::class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import(ControllerAdvice::class, FilmRestMapperImpl::class)
 class FilmRestControllerMockMvcTest {
   companion object {

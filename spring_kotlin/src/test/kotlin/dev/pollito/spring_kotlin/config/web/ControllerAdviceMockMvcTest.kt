@@ -16,6 +16,7 @@ import org.springframework.core.MethodParameter
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.*
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup
@@ -65,6 +66,11 @@ class ControllerAdviceMockMvcTest {
     fun throwNoSuchElementException() {
       throw NoSuchElementException("No such element")
     }
+
+    @GetMapping("/authentication")
+    fun throwAuthenticationException() {
+      throw BadCredentialsException("Authentication failed")
+    }
   }
 
   companion object {
@@ -76,6 +82,7 @@ class ControllerAdviceMockMvcTest {
             Arguments.of("/fake/bad-request", BAD_REQUEST),
             Arguments.of("/fake/method-arg-not-valid", BAD_REQUEST),
             Arguments.of("/fake/no-such-element", NOT_FOUND),
+            Arguments.of("/fake/authentication", UNAUTHORIZED),
         )
   }
 

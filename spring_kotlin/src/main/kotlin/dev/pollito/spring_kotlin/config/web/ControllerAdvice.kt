@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -68,5 +70,10 @@ class ControllerAdvice(private val request: HttpServletRequest) {
   @ExceptionHandler(NoSuchElementException::class)
   fun handle(e: NoSuchElementException): ResponseEntity<Error> {
     return buildErrorResponse(e, NOT_FOUND)
+  }
+
+  @ExceptionHandler(AuthenticationException::class)
+  fun handle(e: AuthenticationException): ResponseEntity<Error> {
+    return buildErrorResponse(e, UNAUTHORIZED)
   }
 }

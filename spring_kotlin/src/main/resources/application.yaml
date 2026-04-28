@@ -53,6 +53,10 @@ management:
       export:
         enabled: false
 
+jwt:
+  secret: ${JWT_SECRET:eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcyNTQ2ODQyMCwiaWF0IjoxNzI1NDY4NDIwfQ.xH2xQ8Z0j3qU8K2vL4mN5oP6qR7sT8uV9wX0yZ1aB2cD3eF4gH5iJ6kL7mN8oP9qR0sT1uV2wX3yZ4aB5cD6eF7gH8iJ9jK0lM1nO2pQ3rS4tU5vW6xY7zZ8}
+  expiration-ms: 3600000
+
 logging:
   pattern:
     level: "trace_id=%mdc{traceId} span_id=%mdc{spanId} trace_flags=%mdc{traceFlags} %p"

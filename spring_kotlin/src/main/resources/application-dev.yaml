@@ -30,6 +30,10 @@ spring:
       path: /h2-console
       settings:
         web-allow-others: false
+jwt:
+  secret: dev-secret-key-do-not-use-in-production
+  expiration-ms: 3600000
+
 management:
   otlp:
     metrics:
