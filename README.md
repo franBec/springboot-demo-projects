@@ -355,7 +355,109 @@ None yet
 
 ### Authentication & Identity
 
-None yet
+The projects use the Sakila database `Staff` table as the source of user accounts that can log in. The original Sakila sample data stores passwords using MD5/SHA1; for compatibility with Spring Security 6.x they were migrated to BCrypt.
+
+- **Mechanism:** JWT (JSON Web Token) — stateless Bearer token authentication
+- **Security Framework:** Spring Security 6.x
+- **Endpoints:**
+    - `POST /login` — Authenticate with username/password, receive JWT token
+    - `GET /me` — Retrieve current authenticated staff user
+- **OpenAPI:** Bearer auth security scheme documented in `openapi.yaml`
+
+When running with the `dev` profile, you can log in with username `Mike` and password `password`.
+
+```log
+$ curl -s 'POST' \
+  'http://localhost:8080/api/auth/login' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "username": "Mike",
+  "password": "password"
+}' | jq
+{
+  "instance": "/api/auth/login",
+  "status": 200,
+  "timestamp": "2026-04-28T22:55:22.915386475+01:00",
+  "trace": "89784b93d7c8e7e5fc5dc26175d8315f",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNaWtlIiwiaWF0IjoxNzc3NDEzMzIyLCJleHAiOjE3Nzc0MTY5MjJ9.BJHNKRefBZHF8iRU9cS7N2hyQvo5MtMIrPG0IcOZGhE"
+  }
+}
+```
+
+```mermaid
+sequenceDiagram
+  participant Client
+  box Adapter In
+    participant AuthRestController
+  end
+  box Domain
+    participant AuthUseCasesImpl
+  end
+  box Infrastructure
+    participant AuthenticationManager
+    participant SakilaUserDetailsService
+    participant JwtService
+  end
+  box Adapter Out
+    participant StaffRepositoryImpl
+    participant StaffJpaRepository
+    participant StaffJpaMapper
+  end
+  participant H2 Database
+
+  Client->>AuthRestController: POST /api/auth/login
+  activate AuthRestController
+
+  AuthRestController->>AuthUseCasesImpl: authenticate("Mike", "password")
+  activate AuthUseCasesImpl
+
+  AuthUseCasesImpl->>AuthenticationManager: authenticate(unauthenticated("Mike", "password"))
+  activate AuthenticationManager
+
+  AuthenticationManager->>SakilaUserDetailsService: loadUserByUsername("Mike")
+  activate SakilaUserDetailsService
+
+  SakilaUserDetailsService->>StaffRepositoryImpl: findByUsername("Mike")
+  activate StaffRepositoryImpl
+
+  StaffRepositoryImpl->>StaffJpaRepository: findByUsername("Mike")
+  activate StaffJpaRepository
+
+  StaffJpaRepository->>H2 Database: SELECT * FROM STAFF WHERE USERNAME = 'Mike'
+  H2 Database-->>StaffJpaRepository: Row data
+
+  StaffJpaRepository-->>StaffRepositoryImpl: StaffEntity
+  deactivate StaffJpaRepository
+
+  StaffRepositoryImpl->>StaffJpaMapper: mapper.map(entity)
+  activate StaffJpaMapper
+  StaffJpaMapper-->>StaffRepositoryImpl: Domain Staff
+  deactivate StaffJpaMapper
+
+  StaffRepositoryImpl-->>SakilaUserDetailsService: Domain Staff
+  deactivate StaffRepositoryImpl
+
+  SakilaUserDetailsService->>SakilaUserDetailsService: new SakilaUserDetails(staff)
+  SakilaUserDetailsService-->>AuthenticationManager: UserDetails
+  deactivate SakilaUserDetailsService
+
+  AuthenticationManager->>AuthenticationManager: PasswordEncoder.matches(...)
+  AuthenticationManager-->>AuthUseCasesImpl: Authentication (principal)
+  deactivate AuthenticationManager
+
+  AuthUseCasesImpl->>JwtService: generateToken(userDetails)
+  activate JwtService
+  JwtService-->>AuthUseCasesImpl: JWT token
+  deactivate JwtService
+
+  AuthUseCasesImpl-->>AuthRestController: JWT token
+  deactivate AuthUseCasesImpl
+
+  AuthRestController-->>Client: HTTP 200 OK + JSON body
+  deactivate AuthRestController
+```
 
 ### Monitoring & Observability
 
