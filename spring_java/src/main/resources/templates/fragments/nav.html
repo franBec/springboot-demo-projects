@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+  <nav th:fragment="nav" class="bg-slate-900 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center space-x-8">
+          <a href="/" class="text-xl font-bold text-sakila-400 tracking-tight">Sakila</a>
+          <a href="/films" class="text-sm font-medium hover:text-sakila-400 transition">Films</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div x-data="{ dark: document.documentElement.classList.contains('dark') }" class="relative">
+            <button 
+              @click="dark = !dark; document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', dark ? 'dark' : 'light')"
+              class="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-sakila-500"
+              aria-label="Toggle dark mode"
+            >
+              <svg x-show="!dark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+              <svg x-show="dark" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            </button>
+          </div>
+          <span sec:authorize="isAuthenticated()" class="text-sm text-slate-300">
+            Welcome, <span sec:authentication="name">User</span>
+          </span>
+          <a sec:authorize="!isAuthenticated()" href="/login" class="bg-sakila-600 hover:bg-sakila-700 text-white px-4 py-2 rounded-md text-sm font-medium transition">Login</a>
+          <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+            <button type="submit" class="flex items-center text-sm text-slate-300 hover:text-white transition">Logout</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+</body>
+</html>

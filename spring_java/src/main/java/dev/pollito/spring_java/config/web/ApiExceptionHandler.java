@@ -20,10 +20,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@RestControllerAdvice
+@RestControllerAdvice(
+    basePackages = {
+      "dev.pollito.spring_java.sakila.film.adapter.in.rest",
+      "dev.pollito.spring_java.sakila.auth.adapter.in.rest",
+      "dev.pollito.spring_java.config.web"
+    })
 @RequiredArgsConstructor
 @Slf4j
-public class ControllerAdvice {
+public class ApiExceptionHandler {
   private final HttpServletRequest request;
 
   private @NonNull ResponseEntity<Error> buildProblemDetail(

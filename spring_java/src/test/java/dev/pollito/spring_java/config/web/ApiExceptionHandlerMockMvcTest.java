@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,19 +31,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-class ControllerAdviceMockMvcTest {
+class ApiExceptionHandlerMockMvcTest {
 
   private MockMvc mockMvc;
   private final HttpServletRequest request = mock(HttpServletRequest.class);
 
   @RestController
-  @RequestMapping("/fake")
+  @RequestMapping("/api/fake")
   private static class FakeController {
 
     @GetMapping("/not-found")
     @SuppressWarnings("unused")
     public void throwNoResourceFoundException() throws NoResourceFoundException {
-      throw new NoResourceFoundException(GET, "/fake", "no-resource-found");
+      throw new NoResourceFoundException(GET, "/api/fake", "no-resource-found");
     }
 
     @GetMapping("/error")
@@ -71,23 +72,30 @@ class ControllerAdviceMockMvcTest {
     public void throwNoSuchElementException() {
       throw new NoSuchElementException("No such element");
     }
+
+    @GetMapping("/unauthorized")
+    @SuppressWarnings("unused")
+    public void throwAuthenticationException() throws AuthenticationException {
+      throw new AuthenticationException("Unauthorized") {};
+    }
   }
 
   @BeforeEach
   void setUp() {
     mockMvc =
         standaloneSetup(new FakeController())
-            .setControllerAdvice(new ControllerAdvice(request))
+            .setControllerAdvice(new ApiExceptionHandler(request))
             .build();
   }
 
   static @NonNull Stream<Arguments> testCases() {
     return Stream.of(
-        Arguments.of("/fake/not-found", NOT_FOUND),
-        Arguments.of("/fake/error", INTERNAL_SERVER_ERROR),
-        Arguments.of("/fake/bad-request", BAD_REQUEST),
-        Arguments.of("/fake/method-arg-not-valid", BAD_REQUEST),
-        Arguments.of("/fake/no-such-element", NOT_FOUND));
+        Arguments.of("/api/fake/not-found", NOT_FOUND),
+        Arguments.of("/api/fake/error", INTERNAL_SERVER_ERROR),
+        Arguments.of("/api/fake/bad-request", BAD_REQUEST),
+        Arguments.of("/api/fake/method-arg-not-valid", BAD_REQUEST),
+        Arguments.of("/api/fake/no-such-element", NOT_FOUND),
+        Arguments.of("/api/fake/unauthorized", UNAUTHORIZED));
   }
 
   @ParameterizedTest

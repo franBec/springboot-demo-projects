@@ -1,6 +1,7 @@
 package dev.pollito.spring_java.sakila.film.domain.service;
 
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
+import dev.pollito.spring_java.sakila.film.domain.model.FilmFilter;
 import dev.pollito.spring_java.sakila.film.domain.port.in.FilmUseCases;
 import dev.pollito.spring_java.sakila.film.domain.port.out.FilmRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,11 @@ public class FilmUseCasesImpl implements FilmUseCases {
   @Override
   public Page<Film> getFilms(Pageable pageable) {
     return repository.getFilms(pageable);
+  }
+
+  @Override
+  public Page<Film> getFilms(FilmFilter filter, Pageable pageable) {
+    return repository.getFilms(filter, pageable);
   }
 
   @Override

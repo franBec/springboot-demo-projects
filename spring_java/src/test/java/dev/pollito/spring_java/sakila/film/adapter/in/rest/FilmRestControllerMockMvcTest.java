@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import dev.pollito.spring_java.config.web.ControllerAdvice;
+import dev.pollito.spring_java.config.web.ApiExceptionHandler;
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
 import dev.pollito.spring_java.sakila.film.domain.model.FilmLanguage;
 import dev.pollito.spring_java.sakila.film.domain.model.FilmRating;
@@ -50,7 +50,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 
 @WebMvcTest(FilmRestController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import({ControllerAdvice.class, FilmRestMapperImpl.class})
+@Import({ApiExceptionHandler.class, FilmRestMapperImpl.class})
 class FilmRestControllerMockMvcTest {
 
   private static final String PATH = "/api/films";

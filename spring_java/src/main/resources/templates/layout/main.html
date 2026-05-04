@@ -1,0 +1,113 @@
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  th:fragment="layout (title, content)"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}" />
+    <meta
+      name="_csrf_header"
+      th:if="${_csrf}"
+      th:content="${_csrf.headerName}"
+    />
+    <title th:text="${title} + ' | Sakila'">Sakila</title>
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://unpkg.com/htmx.org@1.9.12"
+      integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        safelist: ["x-cloak"],
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              sakila: {
+                50: "#f0fdfa",
+                100: "#ccfbf1",
+                200: "#99f6e4",
+                300: "#5eead4",
+                400: "#2dd4bf",
+                500: "#14b8a6",
+                600: "#0d9488",
+                700: "#0f766e",
+                800: "#115e59",
+                900: "#134e4a",
+              },
+            },
+          },
+        },
+      };
+      
+      (function() {
+        const getTheme = () => {
+          const stored = localStorage.getItem('theme');
+          if (stored) return stored;
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+        const theme = getTheme();
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', theme);
+      })();
+
+      document.addEventListener("htmx:configRequest", function (evt) {
+        var csrfToken = document
+          .querySelector('meta[name="_csrf"]')
+          .getAttribute("content");
+        var csrfHeader = document
+          .querySelector('meta[name="_csrf_header"]')
+          .getAttribute("content");
+        if (csrfToken && csrfHeader) {
+          evt.detail.headers[csrfHeader] = csrfToken;
+        }
+      });
+    </script>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col text-gray-900 dark:text-gray-100">
+    <div th:if="${toast}" th:attr="data-toast-message=${toast}" style="display: none;"></div>
+    <div
+      id="toast-container"
+      x-data="{ show: false, message: '' }"
+      x-show="show"
+      x-init="setTimeout(() => { const el = document.querySelector('[data-toast-message]'); if (el) { message = el.dataset.toastMessage; show = true; setTimeout(() => show = false, 4000); } }, 50)"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0 translate-y-4"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100 translate-y-0"
+      x-transition:leave-end="opacity-0 translate-y-4"
+      class="fixed bottom-4 right-4 z-50"
+      style="display: none;"
+    >
+      <div class="bg-sakila-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span x-text="message"></span>
+      </div>
+    </div>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <main class="flex-grow">
+      <div th:replace="${content}"></div>
+    </main>
+    <footer class="bg-slate-900 dark:bg-black text-slate-400 dark:text-slate-500 py-6 mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
+        <a href="https://github.com/franBec/springboot-demo-projects" target="_blank" rel="noopener" class="hover:text-white transition-colors">Sakila Demo Project</a> &mdash; made by <a href="https://springboot.pollito.tech/about/about-the-author" target="_blank" rel="noopener" class="hover:text-white transition-colors">🐤</a> with Spring Boot + Thymeleaf + HTMX + Alpine.js + Tailwind and ♡
+      </div>
+    </footer>
+  </body>
+</html>

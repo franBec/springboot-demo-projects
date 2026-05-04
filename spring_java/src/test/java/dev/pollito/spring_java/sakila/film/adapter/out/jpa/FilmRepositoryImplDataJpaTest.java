@@ -5,6 +5,7 @@ import static org.springframework.data.domain.PageRequest.of;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS;
 
 import dev.pollito.spring_java.sakila.film.domain.model.Film;
+import dev.pollito.spring_java.sakila.film.domain.model.FilmFilter;
 import dev.pollito.spring_java.sakila.film.domain.model.FilmLanguage;
 import dev.pollito.spring_java.sakila.film.domain.model.FilmRating;
 import dev.pollito.spring_java.sakila.film.domain.port.out.FilmRepository;
@@ -60,6 +61,16 @@ class FilmRepositoryImplDataJpaTest {
     return Stream.of(Arguments.of(of(0, 10), true), Arguments.of(of(1000, 10), false));
   }
 
+  static @NonNull Stream<Arguments> getFilmsWithFilterScenarios() {
+    return Stream.of(
+        Arguments.of(new FilmFilter("DINOSAUR", null, null, null, null, null, null, null), 1),
+        Arguments.of(new FilmFilter(null, FilmRating.PG, null, null, null, null, null, null), 2),
+        Arguments.of(
+            new FilmFilter(null, null, FilmLanguage.ENGLISH, null, null, null, null, null), 10),
+        Arguments.of(new FilmFilter(null, null, null, 80, null, null, null, null), 5),
+        Arguments.of(new FilmFilter(null, null, null, null, 60, null, null, null), 3));
+  }
+
   static @NonNull Stream<Arguments> createFilmScenarios() {
     return Stream.of(Arguments.of((FilmLanguage) null), Arguments.of(FilmLanguage.FRENCH));
   }
@@ -85,6 +96,23 @@ class FilmRepositoryImplDataJpaTest {
     } else {
       assertTrue(page.isEmpty());
     }
+  }
+
+  @ParameterizedTest
+  @MethodSource("getFilmsWithFilterScenarios")
+  void getFilmsWithFilterReturnsFilteredPage(FilmFilter filter, int expectedCount) {
+    var page = repository.getFilms(filter, of(0, 10));
+    assertNotNull(page);
+    assertEquals(expectedCount, page.getNumberOfElements());
+  }
+
+  @Test
+  void getFilmsWithEmptyFilterReturnsAllFilms() {
+    var page =
+        repository.getFilms(
+            new FilmFilter(null, null, null, null, null, null, null, null), of(0, 10));
+    assertNotNull(page);
+    assertEquals(10, page.getNumberOfElements());
   }
 
   @ParameterizedTest

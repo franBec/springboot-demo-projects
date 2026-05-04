@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+  <div th:fragment="pagination (page, baseUrl)" class="flex justify-center items-center space-x-2 mt-6" th:if="${page.totalPages > 0}">
+    <th:block th:with="queryParams=${'&search=' + (filter?.search != null ? filter.search : '') + '&rating=' + (filter?.rating != null ? filter.rating.value : '') + '&language=' + (filter?.language != null ? filter.language.value : '') + '&minLength=' + (filter?.minLength != null ? filter.minLength : '') + '&maxLength=' + (filter?.maxLength != null ? filter.maxLength : '') + '&minRentalRate=' + (filter?.minRentalRate != null ? filter.minRentalRate : '') + '&maxRentalRate=' + (filter?.maxRentalRate != null ? filter.maxRentalRate : '') + '&releaseYear=' + (filter?.releaseYear != null ? filter.releaseYear : '') + '&sort=' + (sort != null ? sort : '') + '&order=' + (order != null ? order : '')}">
+      <a th:if="${page.hasPrevious()}"
+         th:href="${baseUrl + '?page=' + (page.number - 1) + '&size=' + page.size + queryParams}"
+         class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        Previous
+      </a>
+      <span th:unless="${page.hasPrevious()}" class="px-3 py-2 rounded-md bg-gray-100 border border-gray-200 text-sm font-medium text-gray-400 cursor-not-allowed">
+        Previous
+      </span>
+
+      <th:block th:with="currentPage=${page.number}, totalPages=${page.totalPages}, delta=2, left=${currentPage - delta}, right=${currentPage + delta + 1}, start=${left < 0 ? 0 : left}, end=${(right - 1) > (totalPages - 1) ? (totalPages - 1) : (right - 1)}">
+        <a th:if="${0 < left}" th:href="${baseUrl + '?page=0&size=' + page.size + queryParams}" th:text="1" class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"></a>
+        <span th:if="${0 < left - 1}" class="px-2 py-2 text-sm text-gray-500">&hellip;</span>
+
+        <th:block th:each="i : ${#numbers.sequence(start, end)}">
+          <a th:if="${i != currentPage}"
+             th:href="${baseUrl + '?page=' + i + '&size=' + page.size + queryParams}"
+             th:text="${i + 1}"
+             class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          </a>
+          <span th:if="${i == currentPage}"
+                th:text="${i + 1}"
+                class="px-3 py-2 rounded-md bg-sakila-600 border border-sakila-600 text-sm font-medium text-white">
+          </span>
+        </th:block>
+
+        <span th:if="${right < totalPages - 1}" class="px-2 py-2 text-sm text-gray-500">&hellip;</span>
+        <a th:if="${right < totalPages}" th:href="${baseUrl + '?page=' + (totalPages - 1) + '&size=' + page.size + queryParams}" th:text="${totalPages}" class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"></a>
+      </th:block>
+
+      <a th:if="${page.hasNext()}"
+         th:href="${baseUrl + '?page=' + (page.number + 1) + '&size=' + page.size + queryParams}"
+         class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        Next
+      </a>
+      <span th:unless="${page.hasNext()}" class="px-3 py-2 rounded-md bg-gray-100 border border-gray-200 text-sm font-medium text-gray-400 cursor-not-allowed">
+        Next
+      </span>
+    </th:block>
+  </div>
+</body>
+</html>

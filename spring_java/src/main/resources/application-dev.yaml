@@ -25,6 +25,8 @@ spring:
       path: /h2-console
       settings:
         web-allow-others: false
+  thymeleaf:
+    cache: false
   data:
     web:
       pageable:

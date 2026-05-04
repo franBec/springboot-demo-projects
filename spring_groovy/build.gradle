@@ -152,6 +152,7 @@ spotless {
   }
   groovyGradle {
     target '*.gradle'
+    targetExclude 'settings-docker.gradle'
     greclipse().configFile('greclipse.properties')
   }
 }

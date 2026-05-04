@@ -1,3 +1,10 @@
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-stacktrace: always
+    include-message: always
+    include-exception: true
 spring:
   application:
     name: spring_java
@@ -13,6 +20,10 @@ spring:
     show-sql: false
   flyway:
     enabled: false
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
   data:
     web:
       pageable:

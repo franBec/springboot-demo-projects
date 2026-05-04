@@ -69,6 +69,9 @@ dependencies {
 
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
 
+  implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+  implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
   def jjwtVersion = '0.12.6'
   implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
   runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
@@ -162,6 +165,7 @@ spotless {
   }
   groovyGradle {
     target '*.gradle'
+    targetExclude 'settings-docker.gradle'
     greclipse().configFile('greclipse.properties')
   }
 }

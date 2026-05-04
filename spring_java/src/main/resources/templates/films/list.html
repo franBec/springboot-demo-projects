@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout/main :: layout ('Films', ~{::section})}">
+<body>
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <style>
+      details[open] summary svg { transform: rotate(90deg); }
+      details summary::-webkit-details-marker { display: none; }
+      .dual-slider { position: relative; height: 36px; }
+      .dual-slider .track { position: absolute; top: 14px; left: 0; right: 0; height: 6px; background: #e5e7eb; border-radius: 3px; }
+      .dual-slider .track-active { position: absolute; top: 14px; height: 6px; background: #0d9488; border-radius: 3px; }
+      .dual-slider input[type=range] { -webkit-appearance: none; appearance: none; position: absolute; top: 0; left: 0; width: 100%; height: 36px; background: transparent; pointer-events: none; margin: 0; }
+      .dual-slider input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid #0d9488; cursor: pointer; pointer-events: auto; box-shadow: 0 1px 4px rgba(0,0,0,0.15); margin-top: -7px; position: relative; z-index: 2; }
+      .dual-slider input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid #0d9488; cursor: pointer; pointer-events: auto; box-shadow: 0 1px 4px rgba(0,0,0,0.15); position: relative; z-index: 2; }
+      .dual-slider input[type=range]:focus::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(13,148,136,0.2); }
+      .dual-slider .range-labels { display: flex; justify-content: space-between; margin-top: 2px; }
+      .dual-slider .range-values { text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 4px; font-weight: 500; }
+    </style>
+    <script>
+      function dualSlider(config) {
+        return {
+          min: config.min,
+          max: config.max,
+          step: config.step || 1,
+          minVal: config.minVal,
+          maxVal: config.maxVal,
+          get leftPct() { return ((this.minVal - this.min) / (this.max - this.min)) * 100; },
+          get rightPct() { return ((this.maxVal - this.min) / (this.max - this.min)) * 100; },
+          formatValue(v) { return this.step < 1 ? parseFloat(v).toFixed(2) : Math.round(v); }
+        }
+      }
+    </script>
+<div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Film Catalog</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">Browse our collection of films</p>
+      </div>
+      <a sec:authorize="isAuthenticated()" href="/films/new" class="bg-sakila-600 hover:bg-sakila-700 text-white px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        <span>Add Film</span>
+      </a>
+    </div>
+
+    <details th:open="${!filter.isEmpty()}" class="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
+      <summary class="p-4 cursor-pointer font-medium text-gray-700 dark:text-gray-300 hover:text-sakila-700 dark:hover:text-sakila-400 select-none list-none flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 transition-transform duration-200 [&[open]>summary>&]:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <span>Filters & Sorting</span>
+          <span th:if="${!filter.isEmpty()}" class="text-xs bg-sakila-100 dark:bg-sakila-900 text-sakila-800 dark:text-sakila-200 px-2 py-0.5 rounded-full">Active</span>
+        </div>
+      </summary>
+      <form method="get" action="/films" class="border-t border-gray-100 dark:border-gray-700 p-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+            <input type="text" name="search" th:value="${filter.search}" placeholder="Search by title..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-sakila-500 focus:border-sakila-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rating</label>
+            <select name="rating" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-sakila-500 focus:border-sakila-500">
+              <option value="">All Ratings</option>
+              <option th:each="r : ${ratings}" th:value="${r.value}" th:text="${r.value}" th:selected="${filter.rating != null && filter.rating.value == r.value}"></option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Language</label>
+            <select name="language" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-sakila-500 focus:border-sakila-500">
+              <option value="">All Languages</option>
+              <option th:each="l : ${languages}" th:value="${l.value}" th:text="${l.value}" th:selected="${filter.language != null && filter.language.value == l.value}"></option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Release Year</label>
+            <input type="number" name="releaseYear" th:value="${filter.releaseYear}" placeholder="e.g. 2006" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-sakila-500 focus:border-sakila-500">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Length (minutes)</label>
+            <div class="dual-slider" th:attr="x-data='dualSlider({min:0,max:200,step:1,minVal:' + ${filter.minLength != null ? filter.minLength : 0} + ',maxVal:' + ${filter.maxLength != null ? filter.maxLength : 200} + '})'">
+              <div class="track dark:bg-gray-600"></div>
+              <div class="track-active" :style="{ left: leftPct + '%', width: (rightPct - leftPct) + '%' }"></div>
+              <input type="range" class="min-handle" name="minLength" min="0" max="200" th:value="${filter.minLength != null ? filter.minLength : 0}" x-model.number="minVal" @input="if (minVal > maxVal) minVal = maxVal">
+               <input type="range" class="max-handle" :name="maxVal === max ? null : 'maxLength'" min="0" max="200" th:value="${filter.maxLength != null ? filter.maxLength : 200}" x-model.number="maxVal" @input="if (maxVal < minVal) maxVal = minVal">
+              <div class="range-values dark:text-gray-400">
+                <span x-text="formatValue(minVal)"></span> –
+                <span x-text="maxVal === max ? '> ' + formatValue(maxVal) : formatValue(maxVal)"></span> min
+              </div>
+            </div>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rental Rate ($)</label>
+            <div class="dual-slider" th:attr="x-data='dualSlider({min:0,max:10,step:0.5,minVal:' + ${filter.minRentalRate != null ? filter.minRentalRate : 0} + ',maxVal:' + ${filter.maxRentalRate != null ? filter.maxRentalRate : 10} + '})'">
+              <div class="track dark:bg-gray-600"></div>
+              <div class="track-active" :style="{ left: leftPct + '%', width: (rightPct - leftPct) + '%' }"></div>
+              <input type="range" class="min-handle" name="minRentalRate" min="0" max="10" step="0.5" th:value="${filter.minRentalRate != null ? filter.minRentalRate : 0}" x-model.number="minVal" @input="if (minVal > maxVal) minVal = maxVal">
+               <input type="range" class="max-handle" :name="maxVal === max ? null : 'maxRentalRate'" min="0" max="10" step="0.5" th:value="${filter.maxRentalRate != null ? filter.maxRentalRate : 10}" x-model.number="maxVal" @input="if (maxVal < minVal) maxVal = minVal">
+                <div class="range-values dark:text-gray-400">
+                  $<span x-text="formatValue(minVal)"></span> –
+                  $<span x-text="maxVal === max ? '> ' + formatValue(maxVal) : formatValue(maxVal)"></span>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-600 pt-4">
+          <div class="flex items-center space-x-4">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Sort by:</span>
+            <select name="sort" class="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-sakila-500 focus:border-sakila-500">
+              <option value="title" th:selected="${sort == 'title'}">Title</option>
+              <option value="releaseYear" th:selected="${sort == 'releaseYear'}">Release Year</option>
+              <option value="length" th:selected="${sort == 'length'}">Length</option>
+              <option value="rating" th:selected="${sort == 'rating'}">Rating</option>
+              <option value="rentalRate" th:selected="${sort == 'rentalRate'}">Rental Rate</option>
+              <option value="rentalDuration" th:selected="${sort == 'rentalDuration'}">Rental Duration</option>
+            </select>
+            <select name="order" class="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-sakila-500 focus:border-sakila-500">
+              <option value="asc" th:selected="${order == 'asc'}">Ascending</option>
+              <option value="desc" th:selected="${order == 'desc'}">Descending</option>
+            </select>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button type="submit" class="px-4 py-2 bg-sakila-600 text-white rounded-lg text-sm font-medium hover:bg-sakila-700 transition">Apply Filters</button>
+            <a href="/films" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Clear</a>
+          </div>
+        </div>
+      </form>
+    </details>
+
+<div th:if="${films.hasContent()}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+       <div th:each="film : ${films.content}" class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-200">
+         <div class="h-48 bg-sakila-200 dark:bg-sakila-900 flex items-center justify-center">
+           <span class="text-sakila-700 dark:text-sakila-300 font-medium text-sm">No Image</span>
+         </div>
+         <div class="p-6">
+          <div class="flex items-start justify-between mb-2">
+            <h2 th:text="${film.title}" class="text-lg font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">Film Title</h2>
+            <span th:if="${film.rating != null}" th:text="${film.rating.value}" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sakila-100 dark:bg-sakila-900 text-sakila-800 dark:text-sakila-200">PG</span>
+          </div>
+          <p th:text="${film.description}" class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">Description</p>
+          <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+            <span th:text="${film.language.value}">English</span>
+            <span th:if="${film.length != null}" th:text="${film.length} + ' min'">86 min</span>
+          </div>
+          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <span class="text-sakila-600 dark:text-sakila-400 font-semibold" th:text="'$' + ${film.rentalRate}">$0.99</span>
+            <a th:href="@{/films/{id}(id=${film.id})}" class="text-sm font-medium text-sakila-600 dark:text-sakila-400 hover:text-sakila-700 dark:hover:text-sakila-300">View Details &rarr;</a>
+          </div>
+        </div>
+       </div>
+     </div>
+
+    <div th:unless="${films.hasContent()}" class="text-center py-16">
+      <p class="text-gray-500 dark:text-gray-400 text-lg">No films found.</p>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pagination (${films}, '/films')}"></div>
+  </section>
+</body>
+</html>
