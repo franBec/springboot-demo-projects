@@ -53,7 +53,7 @@ management:
         enabled: false
 
 jwt:
-  secret: ${JWT_SECRET:this-is-a-default-secret-key-do-not-use-in-production}
+  secret: ${JWT_SECRET}
   expiration-ms: 3600000
 
 logging:
