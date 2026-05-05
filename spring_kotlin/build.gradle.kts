@@ -99,6 +99,7 @@ jacoco { toolVersion = "0.8.14" }
 
 tasks.jacocoTestReport {
   dependsOn(tasks.test)
+  dependsOn(tasks.classes)
   reports {
     xml.required.set(true)
     html.required.set(true)

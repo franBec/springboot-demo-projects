@@ -91,6 +91,7 @@ jacoco {
 
 jacocoTestReport {
   dependsOn test
+  dependsOn classes
   reports {
     xml.required = true
     html.required = true
@@ -148,12 +149,12 @@ spotless {
     target 'src/**/*.groovy'
     importOrder()
     removeSemicolons()
-    greclipse().configFile('greclipse.properties')
+    greclipse('4.26').configFile('greclipse.properties')
   }
   groovyGradle {
     target '*.gradle'
     targetExclude 'settings-docker.gradle'
-    greclipse().configFile('greclipse.properties')
+    greclipse('4.26').configFile('greclipse.properties')
   }
 }
 

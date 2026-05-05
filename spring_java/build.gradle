@@ -90,6 +90,7 @@ jacoco {
 
 jacocoTestReport {
   dependsOn test
+  dependsOn classes
   reports {
     xml.required = true
     html.required = true
@@ -166,7 +167,7 @@ spotless {
   groovyGradle {
     target '*.gradle'
     targetExclude 'settings-docker.gradle'
-    greclipse().configFile('greclipse.properties')
+    greclipse('4.26').configFile('greclipse.properties')
   }
 }
 
