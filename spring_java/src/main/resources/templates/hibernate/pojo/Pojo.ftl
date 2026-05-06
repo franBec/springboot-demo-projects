@@ -163,18 +163,18 @@ public class ${className} implements Serializable {
     @Builder.Default
     private ${javaType} ${propertyName} = new HashSet<>(0);
 
-    <#-- Handle regular columns (BasicValue, SimpleValue) -->
-    <#elseif valueTypeName == "BasicValue" || valueTypeName == "SimpleValue">
+    <#-- Handle regular columns (BasicValue, SimpleValue, EnhancedBasicValue) -->
+    <#elseif valueTypeName == "BasicValue" || valueTypeName == "SimpleValue" || valueTypeName == "EnhancedBasicValue">
     <#if (property.value.columns)?? && property.value.columns?has_content>
     <#list property.value.columns as column>
-    @Column(name = "${column.name}"<#if !column.nullable>, nullable = false</#if><#if (column.length)?? && column.length != 255 && javaType == "String">, length = ${column.length?c}</#if>)
+    @Column(name = "${column.name}"<#if !column.nullable>, nullable = false</#if><#if (column.length)?? && column.length != 255 && javaType == "String">, length = ${column.length?c}</#if><#if javaType == "String">, columnDefinition = "VARCHAR"</#if>)
     <#break>
     </#list>
     <#elseif (property.value.columnIterator)??>
     <#assign columnIterator = property.value.columnIterator>
     <#if columnIterator.hasNext()>
     <#assign column = columnIterator.next()>
-    @Column(name = "${column.name}"<#if !column.nullable>, nullable = false</#if>)
+    @Column(name = "${column.name}"<#if !column.nullable>, nullable = false</#if><#if javaType == "String">, columnDefinition = "VARCHAR"</#if>)
     </#if>
     </#if>
     private ${javaType} ${propertyName};
