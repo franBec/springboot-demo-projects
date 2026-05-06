@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    NOTE: If PostgreSQL "lower(bytea) does not exist" error occurs in production:
+    - This project uses Hibernate Tools which generates Java files (then renames to .groovy)
+    - The Java template (Pojo.ftl) would need @Column with columnDefinition = "VARCHAR" for String fields
+    - See spring_java/src/main/resources/templates/hibernate/pojo/Pojo.ftl for the fix
+    - Java template modifications don't work for Kotlin/Groovy due to Java syntax in generated files
+-->
 <!DOCTYPE hibernate-reverse-engineering PUBLIC
         "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN"
         "http://hibernate.org/dtd/hibernate-reverse-engineering-3.0.dtd" >
@@ -6,66 +13,13 @@
 <hibernate-reverse-engineering>
     <type-mapping>
         <sql-type jdbc-type="VARCHAR" hibernate-type="java.lang.String"/>
+        <sql-type jdbc-type="LONGVARCHAR" hibernate-type="java.lang.String"/>
         <sql-type jdbc-type="TINYINT" hibernate-type="java.lang.Integer"/>
         <sql-type jdbc-type="SMALLINT" hibernate-type="java.lang.Integer"/>
         <sql-type jdbc-type="BIT" hibernate-type="java.lang.Boolean" />
         <sql-type jdbc-type="TIMESTAMP" hibernate-type="java.time.LocalDateTime" />
         <sql-type jdbc-type="DATE" hibernate-type="java.time.LocalDate" />
     </type-mapping>
-
-    <table name="FILM">
-        <column name="TITLE" type="string"/>
-        <column name="DESCRIPTION" type="string"/>
-        <column name="RATING" type="string"/>
-        <column name="SPECIAL_FEATURES" type="string"/>
-    </table>
-    <table name="ACTOR">
-        <column name="FIRST_NAME" type="string"/>
-        <column name="LAST_NAME" type="string"/>
-    </table>
-    <table name="ADDRESS">
-        <column name="ADDRESS" type="string"/>
-        <column name="ADDRESS2" type="string"/>
-        <column name="DISTRICT" type="string"/>
-        <column name="POSTAL_CODE" type="string"/>
-        <column name="PHONE" type="string"/>
-    </table>
-    <table name="CATEGORY">
-        <column name="NAME" type="string"/>
-    </table>
-    <table name="CITY">
-        <column name="CITY" type="string"/>
-    </table>
-    <table name="COUNTRY">
-        <column name="COUNTRY" type="string"/>
-    </table>
-    <table name="CUSTOMER">
-        <column name="FIRST_NAME" type="string"/>
-        <column name="LAST_NAME" type="string"/>
-        <column name="EMAIL" type="string"/>
-    </table>
-    <table name="INVENTORY">
-        <column name="FILM_ID" type="integer"/>
-    </table>
-    <table name="LANGUAGE">
-        <column name="NAME" type="string"/>
-    </table>
-    <table name="PAYMENT">
-        <column name="AMOUNT" type="big_decimal"/>
-    </table>
-    <table name="RENTAL">
-        <column name="RENTAL_DATE" type="local_date_time"/>
-    </table>
-    <table name="STAFF">
-        <column name="FIRST_NAME" type="string"/>
-        <column name="LAST_NAME" type="string"/>
-        <column name="EMAIL" type="string"/>
-        <column name="USERNAME" type="string"/>
-        <column name="PASSWORD" type="string"/>
-    </table>
-    <table name="STORE">
-        <column name="ADDRESS_ID" type="integer"/>
-    </table>
 
     <table-filter match-schema="PUBLIC" match-name=".*" />
 </hibernate-reverse-engineering>
