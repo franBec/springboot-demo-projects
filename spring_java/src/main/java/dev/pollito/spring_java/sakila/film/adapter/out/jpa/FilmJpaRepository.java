@@ -23,7 +23,7 @@ public interface FilmJpaRepository extends JpaRepository<Film, Integer> {
       "SELECT f FROM Film f "
           + "LEFT JOIN f.languageByLanguageId lbli1_0 "
           + "LEFT JOIN f.languageByOriginalLanguageId lboli1_0 "
-          + "WHERE (:search IS NULL OR f.title ILIKE CONCAT('%', :search, '%')) "
+          + "WHERE (:search IS NULL OR f.title ILIKE :search) "
           + "AND (:rating IS NULL OR f.rating = :rating) "
           + "AND (:language IS NULL OR lbli1_0.name = :language) "
           + "AND (:minLength IS NULL OR f.length >= :minLength) "

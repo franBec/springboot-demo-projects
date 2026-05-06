@@ -41,7 +41,10 @@ public class FilmRepositoryImpl implements FilmRepository {
 
   @Override
   public Page<Film> getFilms(@NonNull FilmFilter filter, Pageable pageable) {
-    var search = filter.search() != null && !filter.search().isEmpty() ? filter.search() : null;
+    var search =
+        filter.search() != null && !filter.search().isEmpty()
+            ? "%" + filter.search() + "%"
+            : null;
     var rating = filter.rating() != null ? filter.rating().getValue() : null;
     var language = filter.language() != null ? filter.language().getValue() : null;
     var minLength =
