@@ -47,7 +47,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-aspectj")
   implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
 
-  val swaggerCoreVersion = "2.2.45"
+  val swaggerCoreVersion = "2.2.48"
   implementation("io.swagger.core.v3:swagger-annotations:$swaggerCoreVersion")
   implementation("io.swagger.core.v3:swagger-models:$swaggerCoreVersion")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
